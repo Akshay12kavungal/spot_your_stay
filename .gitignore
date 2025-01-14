@@ -38,3 +38,44 @@ django/instance/
 .idea/
 *.swp
 *.swo
+# General ignores
+.DS_Store
+Thumbs.db
+*.log
+.env
+
+# Node.js (React) ignores
+react/node_modules/
+react/build/
+react/.env.local
+react/.env.development.local
+react/.env.test.local
+react/.env.production.local
+react/npm-debug.log*
+react/yarn-debug.log*
+react/yarn-error.log*
+react/.parcel-cache/
+react/.pnp/
+react.pnp.js
+
+# Python (Django) ignores
+django/__pycache__/
+django/*.pyc
+django/*.pyo
+django/*.pyd
+django/.env
+django/db.sqlite3
+django/staticfiles/
+django/media/
+django/venv/
+django/.pytest_cache/
+django/.coverage
+django/htmlcov/
+django/instance/
+
+# Specific editor/IDE ignores
+.vscode/
+.idea/
+*.swp
+*.swo
+git push
