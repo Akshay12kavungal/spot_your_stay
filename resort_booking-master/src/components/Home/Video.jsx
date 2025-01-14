@@ -1,10 +1,11 @@
-import React from 'react';
-import { Box, Typography, Button, TextField, InputAdornment } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, TextField, InputAdornment } from '@mui/material';
 import { styled } from '@mui/system';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import SearchIcon from '@mui/icons-material/Search';
+import axios from 'axios';
 
 const VideoBackground = styled('video')({
   width: '100%',
@@ -15,8 +16,8 @@ const VideoBackground = styled('video')({
 const Overlay = styled(Box)({
   position: 'absolute',
   top: 0,
-  left: -17,
-  width: '100%',
+  left: 0,
+  width: '100vw',
   height: '100%',
   zIndex: 1,
   display: 'flex',
@@ -24,7 +25,7 @@ const Overlay = styled(Box)({
   alignItems: 'center',
   justifyContent: 'center',
   color: '#fff',
-  padding: '0 20px',
+  padding: '0 0',
   textAlign: 'center',
   overflow: 'hidden',
 });
@@ -38,7 +39,18 @@ const StyledSearchField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     borderRadius: '30px',
   },
+  '@media (max-width: 600px)': {
+    width: '90%', // Adjust width for smaller screens
+    maxWidth: '90%', // Ensure it doesn’t exceed screen width
+  },
+  '@media (min-width: 601px) and (max-width: 960px)': {
+    width: '85%', // Adjust for medium-sized screens
+  },
+  '@media (min-width: 961px)': {
+    width: '80%', // Default for larger screens
+  },
 });
+
 
 const StatsBox = styled(Box)({
   display: 'flex',
@@ -56,46 +68,33 @@ const Stat = styled(Box)({
   alignItems: 'center',
 });
 
-const videos = [
-  {
-    src: require('../../assets/resort.mkv'),
-    title: 'Thottupuram Resorts',
-    description:
-      "Welcome to Thottupuram Resorts. Experience nature's pure luxury with your loved ones at our humble abode in Thodupuzha. Whether it's a party with friends or a relaxing weekend getaway with family, we are here for you.",
-  },
-  {
-    src: require('../../assets/secondVideo.MP4'),
-    title: 'Luxury Awaits',
-    description:
-      'Experience unmatched luxury and serene views, making every moment unforgettable.',
-  },
- 
-];
-
-const CustomArrow = ({ className, style, onClick, direction }) => (
-  <Box
-    className={className}
-    onClick={onClick}
-    sx={{
-      ...style,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      position: 'absolute',
-      top: '50%',
-      [direction === 'left' ? 'left' : 'right']: '20px',
-      transform: 'translateY(-50%)',
-      zIndex: 2,
-      cursor: 'pointer',
-      borderRadius: '50%',
-      width: '40px',
-      height: '40px',
-    }}
-  >
-  </Box>
-);
 
 const VideoSection = () => {
+  const [carouselVideos, setCarouselVideos] = useState([]);
+
+  useEffect(() => {
+    const fetchCarouselVideos = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/carousel/carouselvideo/', {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true, // Include this if your backend uses cookies for authentication
+        });
+
+        if (response.status === 200) {
+          setCarouselVideos(response.data);
+        } else {
+          console.error('Unexpected response status:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching carousel videos:', error);
+      }
+    };
+
+    fetchCarouselVideos();
+  }, []);
+
   const sliderSettings = {
     dots: false,
     infinite: true,
@@ -103,18 +102,17 @@ const VideoSection = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 5000,
-    nextArrow: <CustomArrow direction="right" />,
-    prevArrow: <CustomArrow direction="left" />,
+    autoplaySpeed: 15000,
+    arrows: false,
   };
 
   return (
     <Box sx={{ position: 'relative', height: { xs: '80vh', md: '100vh' }, overflow: 'hidden' }}>
       <Slider {...sliderSettings}>
-        {videos.map((video, index) => (
+        {carouselVideos.map((video, index) => (
           <Box key={index} sx={{ position: 'relative', height: { xs: '80vh', md: '100vh' } }}>
             <VideoBackground autoPlay loop muted>
-              <source src={video.src} type="video/mp4" />
+              <source src={video.video} type="video/mp4" />
               Your browser does not support the video tag.
             </VideoBackground>
           </Box>
@@ -122,7 +120,6 @@ const VideoSection = () => {
       </Slider>
 
       <Overlay>
-        {/* Title and Subtitle */}
         <Typography
           variant="h2"
           sx={{
@@ -144,10 +141,9 @@ const VideoSection = () => {
             overflowWrap: 'break-word',
           }}
         >
-          Tentgram is a platform for explorers to come together by signing up for exciting experiential stays in stunning properties or touring destinations.
+          Spot Your Stay is a platform for explorers to come together by signing up for exciting experiential stays in stunning properties or touring destinations.
         </Typography>
 
-        {/* Search Field */}
         <StyledSearchField
           placeholder="Search Experiences"
           variant="outlined"
@@ -160,7 +156,6 @@ const VideoSection = () => {
           }}
         />
 
-        {/* Statistics Section */}
         <StatsBox>
           <Stat>
             <Typography variant="h4" sx={{ fontWeight: 'bold' }}>

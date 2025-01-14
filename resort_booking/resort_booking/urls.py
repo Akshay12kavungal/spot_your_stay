@@ -8,15 +8,34 @@ from bookings.views import BookingViewSet
 from users.views import UserLoginView, UserSignupView
 
 # Register ViewSets with the router
+# router = DefaultRouter()
+# router.register(r'properties', PropertyViewSet, basename='property')
+# router.register(r'bookings', BookingViewSet, basename='booking')
+# router.register(r'carousel', CarouselVideoViewSet, basename='carousel')
+# router.register(r'gallery', GalleryImageViewSet, basename='gallery')
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path('api/', include(router.urls)),  # Use the router to generate URLs
+#     path('api/signup/', UserSignupView.as_view(), name='user-signup'),
+#     path('api/login/', UserLoginView.as_view(), name='user-login'),
+# ]
+
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 router = DefaultRouter()
 router.register(r'properties', PropertyViewSet, basename='property')
 router.register(r'bookings', BookingViewSet, basename='booking')
 router.register(r'carousel', CarouselVideoViewSet, basename='carousel')
 router.register(r'gallery', GalleryImageViewSet, basename='gallery')
 
+# Include the router's URLs in the urlpatterns
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),  # Use the router to generate URLs
     path('api/signup/', UserSignupView.as_view(), name='user-signup'),
     path('api/login/', UserLoginView.as_view(), name='user-login'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
 ]

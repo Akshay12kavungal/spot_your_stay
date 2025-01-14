@@ -1,47 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, Card, CardMedia, CardContent, CardActions, IconButton, Tab, Tabs } from '@mui/material';
 import { ArrowForwardIos, FavoriteBorder } from '@mui/icons-material';
 import { styled } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-
-const properties = [
-  {
-    name: "Theeram FarmStays",
-    location: "Kerala",
-    guests: "10",
-    rooms: "4",
-    baths: "4",
-    price: "₹23,660",
-    imageUrl: "https://i.postimg.cc/fbwKrcyz/P1181274.jpg",
-  },
-  {
-    name: "Thottupuram FarmHouse",
-    location: "Kerala",
-    guests: "15",
-    rooms: "6",
-    baths: "6",
-    price: "₹79,750",
-    imageUrl: "https://i.postimg.cc/NFgzD1P8/beautiful-scenery-mangal-das-garcas-park-city-belem-brazil.jpg",
-  },
-  {
-    name: "OutHouse by Thottupuram",
-    location: "Kerala",
-    guests: "7",
-    rooms: "3",
-    baths: "3",
-    price: "₹56,383",
-    imageUrl: "https://i.postimg.cc/YS6RPvFd/pool-holiday-leisure-hotel-blue.jpg",
-  },
-  {
-    name: "Tree Tales",
-    location: "Kerala",
-    guests: "3",
-    rooms: "1",
-    baths: "1",
-    price: "₹11,210",
-    imageUrl: "https://i.postimg.cc/wjHknhXn/luxury-outdoor-hotel.jpg",
-  },
-];
+import axios from 'axios';
 
 const Title = styled.h1`
   font-size: 24px;
@@ -53,8 +15,33 @@ const Title = styled.h1`
 
 const TrendingSection = () => {
   const navigate = useNavigate();
+  const [location, setLocation] = useState(0);
+  const [properties, setProperties] = useState([]);
 
-  const [location, setLocation] = React.useState(0);
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/api/properties/properties/', {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true, // Include this if your backend uses cookies for authentication
+        });
+  
+        // Check if response is valid and data exists
+        if (response.status === 200) {
+          setProperties(response.data); // Update the state with the fetched data
+        } else {
+          console.error('Unexpected response status:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      }
+    };
+  
+    fetchProperties();
+  }, []);
+  
 
   const handleLocationChange = (event, newValue) => {
     setLocation(newValue);
@@ -62,7 +49,7 @@ const TrendingSection = () => {
 
   const handleArrowButtonClick = (propertyName) => {
     navigate('/single');
-    window.scrollTo(0, 0); 
+    window.scrollTo(0, 0);
   };
 
   return (
@@ -85,11 +72,11 @@ const TrendingSection = () => {
         sx={{
           display: 'flex',
           gap: 2,
-          flexWrap: 'wrap', // Ensures wrapping on smaller screens
-          justifyContent: 'space-between', // Space between cards on larger screens
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
           '@media (max-width: 600px)': {
-            flexDirection: 'column', // Stacks cards vertically on mobile screens
-            gap: 3, // Increases spacing between cards on mobile
+            flexDirection: 'column',
+            gap: 3,
           },
         }}
       >
@@ -97,18 +84,18 @@ const TrendingSection = () => {
           <Card
             key={index}
             sx={{
-              width: '23%', // Four cards in a row on larger screens
+              width: '23%',
               borderRadius: 3,
               position: 'relative',
               '@media (max-width: 600px)': {
-                width: '100%', // Full width on mobile screens
+                width: '100%',
               },
             }}
           >
             <CardMedia
               component="img"
               height="180"
-              image={property.imageUrl}
+              image={property.image}
               alt={property.name}
               sx={{
                 objectFit: 'cover',
@@ -123,7 +110,7 @@ const TrendingSection = () => {
                 {property.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {property.location}
+                {property.address}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Upto {property.guests} Guests + {property.rooms} Rooms + {property.baths} Baths
