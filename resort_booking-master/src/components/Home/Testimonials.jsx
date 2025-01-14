@@ -1,33 +1,14 @@
-import React from 'react';
-import { Box, Typography, Avatar,  } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Avatar } from '@mui/material';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { styled } from 'styled-components';
-
-
-const testimonials = [
-  {
-    name: 'John Doe',
-    image: 'https://via.placeholder.com/150',
-    feedback: 'This is the best service I have ever used. Highly recommended!',
-    title: 'CEO, Example Co.',
-  },
-  {
-    name: 'Jane Smith',
-    image: 'https://via.placeholder.com/150',
-    feedback: 'Amazing experience! The support team was fantastic.',
-    title: 'Marketing Director, ABC Corp.',
-  },
-  {
-    name: 'Samuel Green',
-    image: 'https://via.placeholder.com/150',
-    feedback: 'Top-notch service and exceptional quality!',
-    title: 'Freelance Designer',
-  },
-];
+import axios from 'axios';
 
 const Testimonial = () => {
+  const [properties, setProperties] = useState([]); // State to store API data
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -40,34 +21,36 @@ const Testimonial = () => {
   };
 
   const Title = styled.h1`
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 40px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-`;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  `;
 
   return (
     <Box sx={{ padding: 4, backgroundColor: '#f9f9f9' }}>
-           <Title>What Our Client Say</Title>
-
+      <Title>Our TESTIMONIALS</Title>
       <Box sx={{ maxWidth: 800, margin: 'auto' }}>
         <Slider {...sliderSettings}>
-          {testimonials.map((testimonial, index) => (
+          {properties.map((property, index) => (
             <Box key={index} sx={{ padding: 3, textAlign: 'center' }}>
               <Avatar
-                src={testimonial.image}
-                alt={testimonial.name}
+                src={`http://127.0.0.1:8000${property.image}`} // Adjust for full image URL
+                alt={property.name}
                 sx={{ width: 100, height: 100, margin: 'auto', marginBottom: 2 }}
               />
               <Typography variant="h6" fontWeight="bold">
-                {testimonial.name}
+                {property.name}
               </Typography>
               <Typography variant="subtitle1" color="textSecondary" gutterBottom>
-                {testimonial.title}
+                {property.property_type}
               </Typography>
               <Typography variant="body1" sx={{ fontStyle: 'italic' }}>
-                "{testimonial.feedback}"
+                "{property.description}"
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Price: {property.price} USD/night
               </Typography>
             </Box>
           ))}
