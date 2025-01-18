@@ -5,12 +5,14 @@ import MenuIcon from '@mui/icons-material/Menu';
 import PhoneIcon from '@mui/icons-material/Phone';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const StyledAppBar = styled(AppBar)(({ transparent }) => ({
-  backgroundColor: '#fff', // Make the background always white
-  color: '#000', // Text color is black
-  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', // Keep a slight shadow effect
-  borderBottom: '1px solid #e0e0e0', // Border for separation
+  backgroundColor: transparent ? 'transparent' : '#fff',
+  color: transparent ? '#fff' : '#000',
+  boxShadow: transparent ? 'none' : '0px 4px 8px rgba(0, 0, 0, 0.1)',
+  transition: 'background-color 0.3s, color 0.3s, box-shadow 0.3s',
+  borderBottom: transparent ? 'none' : '1px solid #e0e0e0',
 }));
 
 const LuxuryButton = styled(Button)({
@@ -23,20 +25,22 @@ const LuxuryButton = styled(Button)({
 });
 
 const TransparentButton = styled(Button)(({ scroll }) => ({
-  color: '#000', // Black text
-  borderColor: '#000', // Black border
+  color: scroll ? '#000' : '#fff', // Black text on scroll, white otherwise
+  borderColor: scroll ? '#000' : '#fff', // Black border on scroll, white otherwise
   borderWidth: '1px',
   borderStyle: 'solid',
   fontWeight: 'bold',
   '&:hover': {
-    borderColor: '#333', // Darker black on hover
+    borderColor: scroll ? '#333' : '#ddd',
   },
 }));
 
-const Header2 = () => {
+const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [profileMenuAnchorEl, setProfileMenuAnchorEl] = useState(null);
+  const [isTransparent, setIsTransparent] = useState(true);
   const isMobile = useMediaQuery('(max-width:600px)');
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -54,8 +58,22 @@ const Header2 = () => {
     setProfileMenuAnchorEl(null);
   };
 
+  const handleLoginClick = () => {
+    navigate('/login'); // Redirect to login page
+    handleMenuClose(); // Close the menu after navigation
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsTransparent(window.scrollY < 100); // Change to false after scrolling down 100px
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <StyledAppBar position="fixed">
+    <StyledAppBar position="fixed" transparent={isTransparent}>
       <Toolbar>
         {/* Logo */}
         <Typography variant="h6" noWrap sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
@@ -90,22 +108,22 @@ const Header2 = () => {
               onClose={handleProfileMenuClose}
             >
               <MenuItem onClick={handleProfileMenuClose}>My Profile</MenuItem>
-              <MenuItem onClick={handleProfileMenuClose}>Login</MenuItem>
+              <MenuItem onClick={handleLoginClick}>Login</MenuItem> {/* Updated to navigate */}
             </Menu>
           </>
         ) : (
           <>
             {/* Desktop View */}
-            <TransparentButton onClick={handleMenuOpen} color="inherit" sx={{ marginRight: 1 }}>
+            <TransparentButton onClick={handleMenuOpen} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
               Explore
             </TransparentButton>
             <LuxuryButton variant="contained" sx={{ marginRight: 1 }}>
               Luxury Getaways
             </LuxuryButton>
-            <TransparentButton color="inherit" sx={{ marginRight: 1 }}>
+            <TransparentButton color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
               List Your Property
             </TransparentButton>
-            <TransparentButton startIcon={<PhoneIcon />} color="inherit" sx={{ marginRight: 1 }}>
+            <TransparentButton startIcon={<PhoneIcon />} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
               +91 9167 928 471
             </TransparentButton>
             <IconButton color="inherit">
@@ -120,7 +138,7 @@ const Header2 = () => {
               onClose={handleProfileMenuClose}
             >
               <MenuItem onClick={handleProfileMenuClose}>My Profile</MenuItem>
-              <MenuItem onClick={handleProfileMenuClose}>Login</MenuItem>
+              <MenuItem onClick={handleLoginClick}>Login</MenuItem> {/* Updated to navigate */}
             </Menu>
           </>
         )}
@@ -129,4 +147,4 @@ const Header2 = () => {
   );
 };
 
-export default Header2;
+export default Header;

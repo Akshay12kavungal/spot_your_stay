@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from properties.models import Property
+from django.contrib.auth.models import User
 
 class Booking(models.Model):
     STATUS_CHOICES = [
@@ -9,7 +10,7 @@ class Booking(models.Model):
         ('bookings','Bookings'),
     ]
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='bookings')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='bookings')
     check_in = models.DateField()
     check_out = models.DateField()
