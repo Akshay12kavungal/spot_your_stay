@@ -8,16 +8,17 @@ import {
   Button,
   Typography,
   Alert,
+  Link,
 } from "@mui/material";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // For displaying error message
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage(""); // Reset error message before making the request
+    setErrorMessage("");
 
     try {
       const response = await axios.post("http://localhost:8000/api/token/", {
@@ -25,21 +26,16 @@ const Login = () => {
         password,
       });
 
-      // Save tokens in localStorage if login is successful
       localStorage.setItem("access_token", response.data.access);
       localStorage.setItem("refresh_token", response.data.refresh);
 
-      alert("Login successful!"); // Show success alert
-      // Optionally, redirect user to another page after login
-      window.location.href = "/"; // Redirect to home or any other page
+      alert("Login successful!");
+      window.location.href = "/";
     } catch (error) {
-      // Improved error handling
       if (error.response) {
-        // If the error has a response, show the error message from the backend
         console.error("Login failed:", error.response.data);
-        setErrorMessage(error.response.data.detail || "Invalid credentials!"); // Set error message
+        setErrorMessage(error.response.data.detail || "Invalid credentials!");
       } else {
-        // If there's no response, show a network error message
         console.error("Network error or unexpected issue:", error);
         setErrorMessage("An unexpected error occurred. Please try again later.");
       }
@@ -51,18 +47,54 @@ const Login = () => {
       sx={{
         display: "flex",
         justifyContent: "center",
-        alignItems: "center",
+        // alignItems: "center",
         height: "100vh",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "transparent",
+        padding: 2,
+
       }}
     >
-      <Card sx={{ maxWidth: 400, width: "100%", padding: 3 }}>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>
-            Login
+      <Card
+        sx={{
+          display: "flex",
+          width: "100%",
+          maxWidth: 900,
+          height: "500px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+          borderRadius: 2,
+        }}
+      >
+        {/* Image Section */}
+        <Box
+        sx={{
+          flex: 1,
+          backgroundImage: `url('http://localhost:8000/media/property_images/WhatsApp_Image_2025-01-15_at_6_aX6gjPH.29.45_PM.jpeg')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          borderRadius: "8px 0 0 8px",
+        }}
+              />
+
+        {/* Form Section */}
+        <CardContent
+          sx={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: 4,
+          }}
+        >
+          <Typography variant="h4" gutterBottom textAlign="center">
+            Welcome Back
           </Typography>
-          <Typography variant="body2" color="textSecondary" gutterBottom>
-            Enter your credentials to access your account.
+          <Typography
+            variant="body2"
+            color="textSecondary"
+            textAlign="center"
+            marginBottom={3}
+          >
+            Please log in to access your account.
           </Typography>
 
           {errorMessage && (
@@ -79,6 +111,8 @@ const Login = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
+                variant="outlined"
+                placeholder="Enter your username"
               />
             </Box>
             <Box marginBottom={2}>
@@ -89,25 +123,36 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                variant="outlined"
+                placeholder="Enter your password"
               />
             </Box>
             <Button
               type="submit"
               variant="contained"
               color="primary"
-              fullWidth
-              sx={{ textTransform: "none" }}
+              fullWidth           
+              sx={{
+                textTransform: "none",
+                padding: "10px",
+                fontSize: "16px",
+              }}
             >
               Login
             </Button>
           </form>
 
-          <Box textAlign="center" marginTop={2}>
-            <Typography variant="body2">
-              Don't have an account? <a href="/signup">Sign Up</a>
+          <Box textAlign="center" marginTop={3}>
+            <Typography variant="body2" gutterBottom>
+              Don't have an account?{" "}
+              <Link href="/signup" underline="hover">
+                Sign Up
+              </Link>
             </Typography>
             <Typography variant="body2">
-              <a href="/forgot-password">Forgot Password?</a>
+              <Link href="/forgot-password" underline="hover">
+                Forgot Password?
+              </Link>
             </Typography>
           </Box>
         </CardContent>

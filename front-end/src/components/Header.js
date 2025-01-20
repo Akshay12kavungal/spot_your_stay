@@ -6,6 +6,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import Login from '../pages/login';
 
 const StyledAppBar = styled(AppBar)(({ transparent }) => ({
   backgroundColor: transparent ? 'transparent' : '#fff',
@@ -57,9 +58,9 @@ const Header = () => {
   const handleProfileMenuClose = () => {
     setProfileMenuAnchorEl(null);
   };
-
+  const [showlogin, setshowlogin] = useState(false);
   const handleLoginClick = () => {
-    navigate('/login'); // Redirect to login page
+    //navigate('/login'); // Redirect to login page
     handleMenuClose(); // Close the menu after navigation
   };
 
@@ -108,7 +109,7 @@ const Header = () => {
               onClose={handleProfileMenuClose}
             >
               <MenuItem onClick={handleProfileMenuClose}>My Profile</MenuItem>
-              <MenuItem onClick={handleLoginClick}>Login</MenuItem> {/* Updated to navigate */}
+              <MenuItem onClick={() =>  setshowlogin(!showlogin)}>Login</MenuItem> {/* Updated to navigate */}
             </Menu>
           </>
         ) : (
@@ -138,11 +139,13 @@ const Header = () => {
               onClose={handleProfileMenuClose}
             >
               <MenuItem onClick={handleProfileMenuClose}>My Profile</MenuItem>
-              <MenuItem onClick={handleLoginClick}>Login</MenuItem> {/* Updated to navigate */}
+              
+              <MenuItem onClick={() =>  setshowlogin(!showlogin)}>Login</MenuItem> {/* Updated to navigate */}
             </Menu>
           </>
         )}
       </Toolbar>
+      { showlogin && <Login/>}
     </StyledAppBar>
   );
 };
