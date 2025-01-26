@@ -7,6 +7,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Login from '../pages/login';
+import Profile from '../pages/Profile'; // Profile page component
 
 const StyledAppBar = styled(AppBar)(({ transparent }) => ({
   backgroundColor: transparent ? 'transparent' : '#fff',
@@ -40,6 +41,9 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [profileMenuAnchorEl, setProfileMenuAnchorEl] = useState(null);
   const [isTransparent, setIsTransparent] = useState(true);
+  const [showlogin, setShowLogin] = useState(false);
+  const [showProfile, setShowProfile] = useState(false); // State to toggle profile page
+  const [profileEditMode, setProfileEditMode] = useState(false); // State to toggle edit mode in profile
   const isMobile = useMediaQuery('(max-width:600px)');
   const navigate = useNavigate(); // Initialize navigate
 
@@ -58,10 +62,19 @@ const Header = () => {
   const handleProfileMenuClose = () => {
     setProfileMenuAnchorEl(null);
   };
-  const [showlogin, setshowlogin] = useState(false);
+
+  const handleProfileRedirect = () => {
+    setShowProfile(true); // Show the profile page
+    handleProfileMenuClose(); // Close the profile menu after redirection
+  };
+
+  const handleProfileEditToggle = () => {
+    setProfileEditMode(!profileEditMode); // Toggle between view and edit mode in the profile
+  };
+
   const handleLoginClick = () => {
-    //navigate('/login'); // Redirect to login page
-    handleMenuClose(); // Close the menu after navigation
+    setShowLogin(!showlogin); // Toggle the login modal visibility
+    handleMenuClose(); // Close the menu after action
   };
 
   useEffect(() => {
@@ -79,7 +92,6 @@ const Header = () => {
         {/* Logo */}
         <Typography variant="h6" noWrap sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
           <img src="https://i.postimg.cc/L5ckc6Bh/Screenshot-2024-11-11-123700-removebg-preview.png" alt="Logo" style={{ height: 40, marginRight: 8 }} />
-          <span></span>
         </Typography>
 
         {/* Conditional display based on screen size */}
@@ -108,8 +120,8 @@ const Header = () => {
               open={Boolean(profileMenuAnchorEl)}
               onClose={handleProfileMenuClose}
             >
-              <MenuItem onClick={handleProfileMenuClose}>My Profile</MenuItem>
-              <MenuItem onClick={() =>  setshowlogin(!showlogin)}>Login</MenuItem> {/* Updated to navigate */}
+              <MenuItem onClick={handleProfileRedirect}>My Profile</MenuItem> {/* Redirect to Profile */}
+              <MenuItem onClick={handleLoginClick}>Login</MenuItem> {/* Toggle login modal */}
             </Menu>
           </>
         ) : (
@@ -138,14 +150,20 @@ const Header = () => {
               open={Boolean(profileMenuAnchorEl)}
               onClose={handleProfileMenuClose}
             >
-              <MenuItem onClick={handleProfileMenuClose}>My Profile</MenuItem>
-              
-              <MenuItem onClick={() =>  setshowlogin(!showlogin)}>Login</MenuItem> {/* Updated to navigate */}
+              <MenuItem onClick={handleProfileRedirect}>My Profile</MenuItem> {/* Redirect to Profile */}
+              <MenuItem onClick={handleLoginClick}>Login</MenuItem> {/* Toggle login modal */}
             </Menu>
           </>
         )}
       </Toolbar>
-      { showlogin && <Login/>}
+      {showlogin && <Login />} {/* Display login modal */}
+
+      {showProfile && (
+        <Profile
+          isEditing={profileEditMode}
+          toggleEditMode={handleProfileEditToggle}
+        />
+      )}
     </StyledAppBar>
   );
 };

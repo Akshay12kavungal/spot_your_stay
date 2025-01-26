@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'payments',
     'gallery',
     'carousel',
+    'about',
 ]
 
 MIDDLEWARE = [

@@ -1,33 +1,30 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import status
 from django.contrib.auth.models import User
-from .serializers import RegisterSerializer
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from .serializers import RegisterSerializer, UserSerializer
+from rest_framework.decorators import action
 
 
-class RegisterView(APIView):
+class RegisterViewSet(ViewSet):
     """
-    View for user registration and user listing.
+    A ViewSet for user registration and listing.
     """
+    permission_classes = [permissions.AllowAny]
 
-    def get_permissions(self):
+    def list(self, request):
         """
-        Set different permissions for GET and POST requests.
-        """
-        if self.request.method == 'GET':
-            return [IsAuthenticated()]
-        return [AllowAny()]
-
-    def get(self, request):
-        """
-        List all registered users (restricted to authenticated users).
+        List all registered users.
         """
         users = User.objects.all()
+        if not users.exists():
+            return Response({"message": "No users found."}, status=status.HTTP_404_NOT_FOUND)
         user_data = [{"id": user.id, "username": user.username, "email": user.email} for user in users]
         return Response(user_data, status=status.HTTP_200_OK)
 
-    def post(self, request):
+    def create(self, request):
         """
         Register a new user.
         """
@@ -46,3 +43,31 @@ class ProtectedView(APIView):
 
     def get(self, request):
         return Response({"message": "This is a protected route. You are authenticated!"})
+
+
+
+
+class ProfileViewSet(ViewSet):
+    """
+    A ViewSet for managing user profiles.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=False, methods=['get', 'put'])
+    def profile(self, request):
+        """
+        GET: Retrieve the profile of the authenticated user.
+        PUT: Update the profile of the authenticated user.
+        """
+        user = request.user
+
+        if request.method == "GET":
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        elif request.method == "PUT":
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message": "Profile updated successfully!"}, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

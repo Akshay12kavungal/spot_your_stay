@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from users.views import ProtectedView, RegisterView
+from users.views import ProtectedView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -19,7 +19,6 @@ urlpatterns = [
     path('api/reviews/', include('reviews.urls')),
     path('api/users/', include('users.urls')),
 
-    path('register/', RegisterView.as_view(), name='register'),
     path('protected/', ProtectedView.as_view(), name='protected'),
     
 

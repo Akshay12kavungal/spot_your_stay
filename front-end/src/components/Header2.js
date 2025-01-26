@@ -1,132 +1,172 @@
-// import React, { useState, useEffect } from 'react';
-// import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, useMediaQuery } from '@mui/material';
-// import { styled } from '@mui/system';
-// import MenuIcon from '@mui/icons-material/Menu';
-// import PhoneIcon from '@mui/icons-material/Phone';
-// import NotificationsIcon from '@mui/icons-material/Notifications';
-// import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import React, { useState, useEffect } from 'react';
+import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, useMediaQuery } from '@mui/material';
+import { styled } from '@mui/system';
+import MenuIcon from '@mui/icons-material/Menu';
+import PhoneIcon from '@mui/icons-material/Phone';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import Login from '../pages/login';
+import Profile from '../pages/Profile'; // Profile page component
 
-// const StyledAppBar = styled(AppBar)(({ transparent }) => ({
-//   backgroundColor: '#fff', // Make the background always white
-//   color: '#000', // Text color is black
-//   boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', // Keep a slight shadow effect
-//   borderBottom: '1px solid #e0e0e0', // Border for separation
-// }));
 
-// const LuxuryButton = styled(Button)({
-//   backgroundColor: '#000', // Black background
-//   color: '#a89160', // Golden text color
-//   fontWeight: 'bold',
-//   '&:hover': {
-//     backgroundColor: '#333', // Darker black on hover
-//   },
-// });
+const StyledAppBar = styled(AppBar)(({ transparent }) => ({
+  backgroundColor: '#fff', // Make the background always white
+  color: '#000', // Text color is black
+  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', // Keep a slight shadow effect
+  borderBottom: '1px solid #e0e0e0', // Border for separation
+}));
 
-// const TransparentButton = styled(Button)(({ scroll }) => ({
-//   color: '#000', // Black text
-//   borderColor: '#000', // Black border
-//   borderWidth: '1px',
-//   borderStyle: 'solid',
-//   fontWeight: 'bold',
-//   '&:hover': {
-//     borderColor: '#333', // Darker black on hover
-//   },
-// }));
+const LuxuryButton = styled(Button)({
+  backgroundColor: '#000', // Black background
+  color: '#a89160', // Golden text color
+  fontWeight: 'bold',
+  '&:hover': {
+    backgroundColor: '#333', // Darker black on hover
+  },
+});
 
-// const Header2 = () => {
-//   const [anchorEl, setAnchorEl] = useState(null);
-//   const [profileMenuAnchorEl, setProfileMenuAnchorEl] = useState(null);
-//   const isMobile = useMediaQuery('(max-width:600px)');
+const TransparentButton = styled(Button)(({ scroll }) => ({
+  color: '#000', // Black text
+  borderColor: '#000', // Black border
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  fontWeight: 'bold',
+  '&:hover': {
+    borderColor: '#333', // Darker black on hover
+  },
+}));
 
-//   const handleMenuOpen = (event) => {
-//     setAnchorEl(event.currentTarget);
-//   };
+const Header2 = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+    const [profileMenuAnchorEl, setProfileMenuAnchorEl] = useState(null);
+    const [isTransparent, setIsTransparent] = useState(true);
+    const [showlogin, setShowLogin] = useState(false);
+    const [showProfile, setShowProfile] = useState(false); // State to toggle profile page
+    const [profileEditMode, setProfileEditMode] = useState(false); // State to toggle edit mode in profile
+    const isMobile = useMediaQuery('(max-width:600px)');
+    const navigate = useNavigate(); // Initialize navigate
 
-//   const handleMenuClose = () => {
-//     setAnchorEl(null);
-//   };
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-//   const handleProfileMenuOpen = (event) => {
-//     setProfileMenuAnchorEl(event.currentTarget);
-//   };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
-//   const handleProfileMenuClose = () => {
-//     setProfileMenuAnchorEl(null);
-//   };
+  const handleProfileMenuOpen = (event) => {
+    setProfileMenuAnchorEl(event.currentTarget);
+  };
 
-//   return (
-//     <StyledAppBar position="fixed">
-//       <Toolbar>
-//         {/* Logo */}
-//         <Typography variant="h6" noWrap sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-//           <img src="https://i.postimg.cc/L5ckc6Bh/Screenshot-2024-11-11-123700-removebg-preview.png" alt="Logo" style={{ height: 40, marginRight: 8 }} />
-//           <span></span>
-//         </Typography>
+  const handleProfileMenuClose = () => {
+    setProfileMenuAnchorEl(null);
+  };
 
-//         {/* Conditional display based on screen size */}
-//         {isMobile ? (
-//           <>
-//             {/* Mobile View */}
-//             <IconButton color="inherit" onClick={handleMenuOpen}>
-//               <MenuIcon />
-//             </IconButton>
-//             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-//               <MenuItem onClick={handleMenuClose}>Explore</MenuItem>
-//               <MenuItem onClick={handleMenuClose}>Luxury Getaways</MenuItem>
-//               <MenuItem onClick={handleMenuClose}>List Your Property</MenuItem>
-//               <MenuItem onClick={handleMenuClose}>
-//                 <PhoneIcon /> +91 9167 928 471
-//               </MenuItem>
-//               <MenuItem onClick={handleMenuClose}>
-//                 <NotificationsIcon color="error" />
-//               </MenuItem>
-//               <MenuItem onClick={handleProfileMenuOpen}>
-//                 <AccountCircleIcon />
-//               </MenuItem>
-//             </Menu>
-//             <Menu
-//               anchorEl={profileMenuAnchorEl}
-//               open={Boolean(profileMenuAnchorEl)}
-//               onClose={handleProfileMenuClose}
-//             >
-//               <MenuItem onClick={handleProfileMenuClose}>My Profile</MenuItem>
-//               <MenuItem onClick={handleProfileMenuClose}>Login</MenuItem>
-//             </Menu>
-//           </>
-//         ) : (
-//           <>
-//             {/* Desktop View */}
-//             <TransparentButton onClick={handleMenuOpen} color="inherit" sx={{ marginRight: 1 }}>
-//               Explore
-//             </TransparentButton>
-//             <LuxuryButton variant="contained" sx={{ marginRight: 1 }}>
-//               Luxury Getaways
-//             </LuxuryButton>
-//             <TransparentButton color="inherit" sx={{ marginRight: 1 }}>
-//               List Your Property
-//             </TransparentButton>
-//             <TransparentButton startIcon={<PhoneIcon />} color="inherit" sx={{ marginRight: 1 }}>
-//               +91 9167 928 471
-//             </TransparentButton>
-//             <IconButton color="inherit">
-//               <NotificationsIcon color="error" />
-//             </IconButton>
-//             <IconButton color="inherit" onClick={handleProfileMenuOpen}>
-//               <AccountCircleIcon />
-//             </IconButton>
-//             <Menu
-//               anchorEl={profileMenuAnchorEl}
-//               open={Boolean(profileMenuAnchorEl)}
-//               onClose={handleProfileMenuClose}
-//             >
-//               <MenuItem onClick={handleProfileMenuClose}>My Profile</MenuItem>
-//               <MenuItem onClick={handleProfileMenuClose}>Login</MenuItem>
-//             </Menu>
-//           </>
-//         )}
-//       </Toolbar>
-//     </StyledAppBar>
-//   );
-// };
+const handleProfileRedirect = () => {
+    setShowProfile(true); // Show the profile page
+    handleProfileMenuClose(); // Close the profile menu after redirection
+};
+  
+const handleProfileEditToggle = () => {
+    setProfileEditMode(!profileEditMode); // Toggle between view and edit mode in the profile
+};
 
-// export default Header2;
+const handleLoginClick = () => {
+    setShowLogin(!showlogin); // Toggle the login modal visibility
+    handleMenuClose(); // Close the menu after action
+    };
+
+useEffect(() => {
+    const handleScroll = () => {
+    setIsTransparent(window.scrollY < 100); // Change to false after scrolling down 100px
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+}, []);
+
+return (
+    <StyledAppBar position="fixed" transparent={isTransparent}>
+      <Toolbar>
+        {/* Logo */}
+        <Typography variant="h6" noWrap sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+          <img src="https://i.postimg.cc/L5ckc6Bh/Screenshot-2024-11-11-123700-removebg-preview.png" alt="Logo" style={{ height: 40, marginRight: 8 }} />
+        </Typography>
+
+        {/* Conditional display based on screen size */}
+        {isMobile ? (
+          <>
+            {/* Mobile View */}
+            <IconButton color="inherit" onClick={handleMenuOpen}>
+              <MenuIcon />
+            </IconButton>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+              <MenuItem onClick={handleMenuClose}>Explore</MenuItem>
+              <MenuItem onClick={handleMenuClose}>Luxury Getaways</MenuItem>
+              <MenuItem onClick={handleMenuClose}>List Your Property</MenuItem>
+              <MenuItem onClick={handleMenuClose}>
+                <PhoneIcon /> +91 9167 928 471
+              </MenuItem>
+              <MenuItem onClick={handleMenuClose}>
+                <NotificationsIcon color="error" />
+              </MenuItem>
+              <MenuItem onClick={handleProfileMenuOpen}>
+                <AccountCircleIcon />
+              </MenuItem>
+            </Menu>
+            <Menu
+              anchorEl={profileMenuAnchorEl}
+              open={Boolean(profileMenuAnchorEl)}
+              onClose={handleProfileMenuClose}
+            >
+              <MenuItem onClick={handleProfileRedirect}>My Profile</MenuItem> {/* Redirect to Profile */}
+              <MenuItem onClick={handleLoginClick}>Login</MenuItem> {/* Toggle login modal */}
+            </Menu>
+          </>
+        ) : (
+          <>
+            {/* Desktop View */}
+            <TransparentButton onClick={handleMenuOpen} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
+              Explore
+            </TransparentButton>
+            <LuxuryButton variant="contained" sx={{ marginRight: 1 }}>
+              Luxury Getaways
+            </LuxuryButton>
+            <TransparentButton color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
+              List Your Property
+            </TransparentButton>
+            <TransparentButton startIcon={<PhoneIcon />} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
+              +91 9167 928 471
+            </TransparentButton>
+            <IconButton color="inherit">
+              <NotificationsIcon color="error" />
+            </IconButton>
+            <IconButton color="inherit" onClick={handleProfileMenuOpen}>
+              <AccountCircleIcon />
+            </IconButton>
+            <Menu
+              anchorEl={profileMenuAnchorEl}
+              open={Boolean(profileMenuAnchorEl)}
+              onClose={handleProfileMenuClose}
+            >
+              <MenuItem onClick={handleProfileRedirect}>My Profile</MenuItem> {/* Redirect to Profile */}
+              <MenuItem onClick={handleLoginClick}>Login</MenuItem> {/* Toggle login modal */}
+            </Menu>
+          </>
+        )}
+      </Toolbar>
+      {showlogin && <Login />} {/* Display login modal */}
+
+      {showProfile && (
+        <Profile
+          isEditing={profileEditMode}
+          toggleEditMode={handleProfileEditToggle}
+        />
+      )}
+    </StyledAppBar>
+  );
+};
+
+
+export default Header2;

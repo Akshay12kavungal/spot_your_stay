@@ -1,42 +1,68 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { styled } from "@mui/material/styles"; // Import styled for custom button styling
 import {
   Box,
   Card,
   CardContent,
   TextField,
-  Button,
   Typography,
   Alert,
   Link,
 } from "@mui/material";
 
-const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+// Define the custom styled button
+const LuxuryButton = styled("button")({
+  backgroundColor: "#000", // Black background
+  color: "#a89160", // Golden text color
+  fontWeight: "bold",
+  padding: "10px",
+  fontSize: "16px",
+  border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
+  width: "100%",
+  textTransform: "none",
+  "&:hover": {
+    backgroundColor: "#333", // Darker black on hover
+  },
+});
 
-  const handleSubmit = async (e) => {
+const LoginRegister = () => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLogin, setIsLogin] = useState(true);
+
+  const handleSubmitRegister = async (e) => {
     e.preventDefault();
     setErrorMessage("");
 
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match!");
+      return;
+    }
+
     try {
-      const response = await axios.post("http://localhost:8000/api/token/", {
+      const response = await axios.post("http://localhost:8000/api/users/register/", {
         username,
+        email,
         password,
       });
 
-      localStorage.setItem("access_token", response.data.access);
-      localStorage.setItem("refresh_token", response.data.refresh);
-
-      alert("Login successful!");
-      window.location.href = "/";
+      alert("Registration successful! You can now log in.");
+      setIsLogin(true);
     } catch (error) {
       if (error.response) {
-        console.error("Login failed:", error.response.data);
-        setErrorMessage(error.response.data.detail || "Invalid credentials!");
+        setErrorMessage(
+          error.response.data.email?.[0] ||
+          error.response.data.username?.[0] ||
+          error.response.data.password?.[0] ||
+          "Registration failed!"
+        );
       } else {
-        console.error("Network error or unexpected issue:", error);
         setErrorMessage("An unexpected error occurred. Please try again later.");
       }
     }
@@ -47,11 +73,8 @@ const Login = () => {
       sx={{
         display: "flex",
         justifyContent: "center",
-        // alignItems: "center",
         height: "100vh",
-        backgroundColor: "transparent",
         padding: 2,
-
       }}
     >
       <Card
@@ -64,18 +87,15 @@ const Login = () => {
           borderRadius: 2,
         }}
       >
-        {/* Image Section */}
         <Box
-        sx={{
-          flex: 1,
-          backgroundImage: `url('http://localhost:8000/media/property_images/WhatsApp_Image_2025-01-15_at_6_aX6gjPH.29.45_PM.jpeg')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          borderRadius: "8px 0 0 8px",
-        }}
-              />
-
-        {/* Form Section */}
+          sx={{
+            flex: 1,
+            backgroundImage: `url('http://localhost:8000/media/property_images/login.jpeg')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            borderRadius: "8px 0 0 8px",
+          }}
+        />
         <CardContent
           sx={{
             flex: 1,
@@ -86,15 +106,12 @@ const Login = () => {
           }}
         >
           <Typography variant="h4" gutterBottom textAlign="center">
-            Welcome Back
+            {isLogin ? "Welcome Back" : "Create an Account"}
           </Typography>
-          <Typography
-            variant="body2"
-            color="textSecondary"
-            textAlign="center"
-            marginBottom={3}
-          >
-            Please log in to access your account.
+          <Typography variant="body2" color="textSecondary" textAlign="center" marginBottom={3}>
+            {isLogin
+              ? "Please log in to access your account."
+              : "Please fill in the details to create a new account."}
           </Typography>
 
           {errorMessage && (
@@ -103,7 +120,7 @@ const Login = () => {
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={isLogin ? undefined : handleSubmitRegister}>
             <Box marginBottom={2}>
               <TextField
                 fullWidth
@@ -115,6 +132,20 @@ const Login = () => {
                 placeholder="Enter your username"
               />
             </Box>
+            {!isLogin && (
+              <Box marginBottom={2}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  variant="outlined"
+                  placeholder="Enter your email address"
+                />
+              </Box>
+            )}
             <Box marginBottom={2}>
               <TextField
                 fullWidth
@@ -127,31 +158,36 @@ const Login = () => {
                 placeholder="Enter your password"
               />
             </Box>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth           
-              sx={{
-                textTransform: "none",
-                padding: "10px",
-                fontSize: "16px",
-              }}
-            >
-              Login
-            </Button>
+            {!isLogin && (
+              <Box marginBottom={2}>
+                <TextField
+                  fullWidth
+                  label="Confirm Password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  variant="outlined"
+                  placeholder="Confirm your password"
+                />
+              </Box>
+            )}
+            <LuxuryButton type="submit">
+              {isLogin ? "Login" : "Register"}
+            </LuxuryButton>
           </form>
 
           <Box textAlign="center" marginTop={3}>
             <Typography variant="body2" gutterBottom>
-              Don't have an account?{" "}
-              <Link href="/signup" underline="hover">
-                Sign Up
-              </Link>
-            </Typography>
-            <Typography variant="body2">
-              <Link href="/forgot-password" underline="hover">
-                Forgot Password?
+              {isLogin
+                ? "Don't have an account? "
+                : "Already have an account? "}
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => setIsLogin(!isLogin)}
+              >
+                {isLogin ? "Sign Up" : "Login"}
               </Link>
             </Typography>
           </Box>
@@ -161,4 +197,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginRegister;
