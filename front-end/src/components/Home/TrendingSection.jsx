@@ -21,7 +21,7 @@ const TrendingSection = () => {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/properties/properties/', {
+        const response = await axios.get('http://127.0.0.1:8000/api/properties/', {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -47,11 +47,12 @@ const TrendingSection = () => {
     setLocation(newValue);
   };
 
-  const handleArrowButtonClick = (propertyName) => {
-    navigate('/single');
-    window.scrollTo(0, 0);
+  const handleArrowButtonClick = (propertyId) => {
+    navigate(`/single/${propertyId}`); // Navigate to the property details page
+    window.scrollTo(0, 0); // Scroll to the top of the page
   };
-
+  
+  
   return (
     <Box sx={{ padding: 4 }}>
       <Title>OUR PROPERTIES</Title>
@@ -131,7 +132,7 @@ const TrendingSection = () => {
                     backgroundColor: 'rgba(0, 0, 0, 0.04)',
                   },
                 }}
-                onClick={() => handleArrowButtonClick(property.name)}
+                onClick={() => handleArrowButtonClick(property.id)}
               >
                 <ArrowForwardIos />
               </IconButton>

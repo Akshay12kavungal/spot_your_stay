@@ -9,6 +9,7 @@ import Register from './pages/register';
 import ProtectedData from './pages/ProtectedData';
 import Logout from './pages/logout';
 import Profile from './pages/Profile';
+import TrendingSection from './components/Home/TrendingSection';
 
 
 function App() {
@@ -23,9 +24,10 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/" element={<Home />} />
-        <Route path="/single" element={<SingleView />} />
+        <Route path="/single/:id" element={<SingleView />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/gallery" element={<GallerySection />} />
+        <Route path="/" element={<TrendingSection />} />
 
       </Routes>
     </div>
