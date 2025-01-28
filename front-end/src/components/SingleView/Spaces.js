@@ -1,77 +1,64 @@
-import React from "react";
-import { Box, Typography, Card, CardMedia, CardContent } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Typography,
+  Card,
+  CardMedia,
+  CardContent,
+  CircularProgress,
+} from "@mui/material";
+import axios from "axios";
 
-const rooms = [
-  {
-    id: 1,
-    title: "Bedroom 1",
-    description: [
-      "This is an air-conditioned room on the first floor.",
-      "The room offers a king-sized bed, WiFi access and an attached balcony with a pool view.",
-      "It has an attached bathroom equipped with a geyser, towels, basic toiletries, and a hot water facility.",
-    ],
-    image: "room1.jpg", // Replace with actual image URL
-    tag: "King-sized bed",
-  },
-  {
-    id: 2,
-    title: "Bedroom 2",
-    description: [
-      "This is an air-conditioned room on the first floor.",
-      "The room offers a king-sized bed, WiFi access and a garden view.",
-      "It has an attached bathroom equipped with a geyser, towels, basic toiletries, and a hot water facility.",
-    ],
-    image: "room2.jpg", // Replace with actual image URL
-    tag: "King-sized bed",
-  },
-  {
-    id: 3,
-    title: "Bedroom 3",
-    description: [
-      "This is an air-conditioned room on the first floor.",
-      "The room offers a king-sized bed, WiFi access and an attached balcony with a garden view.",
-      "It has an attached bathroom equipped with a geyser, towels, basic toiletries, and a hot water facility.",
-    ],
-    image: "room3.jpg", // Replace with actual image URL
-    tag: "King-sized bed",
-  },
-  {
-    id: 1,
-    title: "Bedroom 1",
-    description: [
-      "This is an air-conditioned room on the first floor.",
-      "The room offers a king-sized bed, WiFi access and an attached balcony with a pool view.",
-      "It has an attached bathroom equipped with a geyser, towels, basic toiletries, and a hot water facility.",
-    ],
-    image: "room1.jpg", // Replace with actual image URL
-    tag: "King-sized bed",
-  },
-  {
-    id: 2,
-    title: "Bedroom 2",
-    description: [
-      "This is an air-conditioned room on the first floor.",
-      "The room offers a king-sized bed, WiFi access and a garden view.",
-      "It has an attached bathroom equipped with a geyser, towels, basic toiletries, and a hot water facility.",
-    ],
-    image: "room2.jpg", // Replace with actual image URL
-    tag: "King-sized bed",
-  },
-  {
-    id: 3,
-    title: "Bedroom 3",
-    description: [
-      "This is an air-conditioned room on the first floor.",
-      "The room offers a king-sized bed, WiFi access and an attached balcony with a garden view.",
-      "It has an attached bathroom equipped with a geyser, towels, basic toiletries, and a hot water facility.",
-    ],
-    image: "room3.jpg", // Replace with actual image URL
-    tag: "King-sized bed",
-  },
-];
-
-const ScrollableRooms = () => {
+const ScrollableRooms = ({ propertyId }) => {
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [loading, setLoading] = useState(true);
   const scrollRef = React.useRef(null);
+
+  useEffect(() => {
+    const fetchGalleryImages = async () => {
+      try {
+        const response = await axios.get(
+          `http://127.0.0.1:8000/api/gallery/?property=${propertyId}`,
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        );
+        if (response.status === 200) {
+          // Adjust based on your API response structure
+          setGalleryImages(response.data.images || response.data || []);
+        } else {
+          console.error("Unexpected response status:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching gallery images:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (propertyId) {
+      fetchGalleryImages();
+    }
+  }, [propertyId]);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!galleryImages.length) {
+    return (
+      <Box textAlign="center" mt={4}>
+        <Typography variant="h6" color="text.secondary">
+          No images available for this property.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ position: "relative", p: 2 }}>
@@ -91,9 +78,9 @@ const ScrollableRooms = () => {
             "&::-webkit-scrollbar": { display: "none" },
           }}
         >
-          {rooms.map((room) => (
+          {galleryImages.map((image) => (
             <Card
-              key={room.id}
+              key={image.id}
               sx={{
                 minWidth: 300,
                 maxWidth: 300,
@@ -105,38 +92,38 @@ const ScrollableRooms = () => {
                 <CardMedia
                   component="img"
                   height="180"
-                  image={room.image}
-                  alt={room.title}
+                  image={image.image}
+                  alt={image.title || "Gallery Image"}
                   sx={{ borderRadius: "8px 8px 0 0" }}
                 />
-                <Typography
-                  variant="caption"
-                  sx={{
-                    position: "absolute",
-                    top: 10,
-                    right: 10,
-                    bgcolor: "rgba(255, 255, 255, 0.9)",
-                    borderRadius: 1,
-                    px: 1,
-                    py: 0.5,
-                    fontSize: "12px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {room.tag}
-                </Typography>
+                {image.tag && (
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      bgcolor: "rgba(255, 255, 255, 0.9)",
+                      borderRadius: 1,
+                      px: 1,
+                      py: 0.5,
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {image.tag}
+                  </Typography>
+                )}
               </Box>
               <CardContent>
                 <Typography variant="h6" fontWeight="bold">
-                  {room.title}
+                  {image.title || "Untitled"}
                 </Typography>
-                <ul style={{ padding: "0 16px", marginTop: 8 }}>
-                  {room.description.map((line, index) => (
-                    <li key={index}>
-                      <Typography variant="body2">{line}</Typography>
-                    </li>
-                  ))}
-                </ul>
+                {image.description && (
+                  <Typography variant="body2" color="text.secondary" mt={1}>
+                    {image.description}
+                  </Typography>
+                )}
               </CardContent>
             </Card>
           ))}

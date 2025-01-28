@@ -91,7 +91,11 @@ const Header = () => {
       <Toolbar>
         {/* Logo */}
         <Typography variant="h6" noWrap sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-          <img src="https://i.postimg.cc/L5ckc6Bh/Screenshot-2024-11-11-123700-removebg-preview.png" alt="Logo" style={{ height: 40, marginRight: 8 }} />
+          <Typography variant="h6" noWrap sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+              <a href="/" to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+                <img src="https://i.postimg.cc/L5ckc6Bh/Screenshot-2024-11-11-123700-removebg-preview.png" alt="Logo" style={{ height: 40, marginRight: 8 }} />
+              </a>
+          </Typography>
         </Typography>
 
         {/* Conditional display based on screen size */}

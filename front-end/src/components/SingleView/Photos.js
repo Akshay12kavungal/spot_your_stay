@@ -1,4 +1,5 @@
-import React from "react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Grid,
@@ -6,18 +7,66 @@ import {
   Button,
   CardMedia,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShareIcon from "@mui/icons-material/Share";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
-const VillaSection = () => {
+const VillaSection = ({ propertyId }) => {
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPropertyDetails = async () => {
+      try {
+        const response = await axios.get(
+          `http://127.0.0.1:8000/api/properties/${propertyId}/`,
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        );
+        if (response.status === 200) {
+          setProperty(response.data);
+        } else {
+          console.error("Unexpected response status:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching property details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (propertyId) {
+      fetchPropertyDetails();
+    }
+  }, [propertyId]);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!property) {
+    return (
+      <Box textAlign="center" mt={4}>
+        <Typography variant="h6" color="text.secondary">
+          Villa details not available.
+        </Typography>
+      </Box>
+    );
+  }
   return (
     <Box sx={{ padding: 2 }}>
       {/* Breadcrumb and Brochure Button */}
       <Box display="flex" justifyContent="space-between" mb={2}>
         <Typography variant="body2" color="text.secondary">
-          Home &gt; Villas in Alibaug &gt; Pranaam Villa in Alibaug
+          Home &gt; {property.name} &gt; Details
         </Typography>
         <Button
           variant="outlined"
@@ -35,8 +84,8 @@ const VillaSection = () => {
           <Box sx={{ position: "relative" }}>
             <CardMedia
               component="img"
-              src="https://i.postimg.cc/fbwKrcyz/P1181274.jpg" // Replace with the main image URL
-              alt="Main Villa"
+              image={property.image}
+              alt={property.name}
               sx={{ borderRadius: "12px", width: "100%" }}
             />
             {/* View Photos Overlay */}
@@ -79,8 +128,8 @@ const VillaSection = () => {
           <Box display="flex" flexDirection="column" gap={2}>
             <CardMedia
               component="img"
-              src="https://i.postimg.cc/13ctz6HN/P1181260.jpg" // Replace with additional image 1
-              alt="Villa Detail"
+              image={property.image}
+              alt={property.name}
               sx={{
                 borderRadius: "12px",
                 cursor: "pointer",
@@ -90,8 +139,8 @@ const VillaSection = () => {
             />
             <CardMedia
               component="img"
-              src="https://i.postimg.cc/dtfXTS5b/P1181228.jpg" // Replace with additional image 2
-              alt="Villa Detail"
+              image={property.image}
+              alt={property.name}
               sx={{
                 borderRadius: "12px",
                 cursor: "pointer",
