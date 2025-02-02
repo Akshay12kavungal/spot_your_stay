@@ -29,7 +29,7 @@ function SingleView() {
         <VillaSection propertyId={propertyId} />
       </div>
       <div>
-        <SearchBar />
+      <SearchBar propertyId={propertyId} />
       </div>
       <div>
         <VillaDetailsSection propertyId={propertyId} />

@@ -8,6 +8,9 @@ import {
   CardMedia,
   IconButton,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShareIcon from "@mui/icons-material/Share";
@@ -15,32 +18,39 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 const VillaSection = ({ propertyId }) => {
   const [property, setProperty] = useState(null);
+  const [galleryImages, setGalleryImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [openGallery, setOpenGallery] = useState(false);
 
   useEffect(() => {
-    const fetchPropertyDetails = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/api/properties/${propertyId}/`,
-          {
+        const [propertyResponse, galleryResponse] = await Promise.all([
+          axios.get(`http://127.0.0.1:8000/api/properties/${propertyId}/`, {
             headers: { "Content-Type": "application/json" },
             withCredentials: true,
-          }
-        );
-        if (response.status === 200) {
-          setProperty(response.data);
-        } else {
-          console.error("Unexpected response status:", response.status);
+          }),
+          axios.get(`http://127.0.0.1:8000/api/gallery/?property=${propertyId}`, {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }),
+        ]);
+
+        if (propertyResponse.status === 200) {
+          setProperty(propertyResponse.data);
+        }
+        if (galleryResponse.status === 200) {
+          setGalleryImages(galleryResponse.data.images || galleryResponse.data || []);
         }
       } catch (error) {
-        console.error("Error fetching property details:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
 
     if (propertyId) {
-      fetchPropertyDetails();
+      fetchData();
     }
   }, [propertyId]);
 
@@ -61,34 +71,32 @@ const VillaSection = ({ propertyId }) => {
       </Box>
     );
   }
+
   return (
     <Box sx={{ padding: 2 }}>
-      {/* Breadcrumb and Brochure Button */}
       <Box display="flex" justifyContent="space-between" mb={2}>
         <Typography variant="body2" color="text.secondary">
           Home &gt; {property.name} &gt; Details
         </Typography>
-        <Button
-          variant="outlined"
-          startIcon={<PictureAsPdfIcon />}
-          sx={{ textTransform: "none" }}
-        >
+        <Button variant="outlined" startIcon={<PictureAsPdfIcon />} sx={{ textTransform: "none" }}>
           View Brochure
         </Button>
       </Box>
 
-      {/* Main Content */}
       <Grid container spacing={2}>
-        {/* Main Image */}
         <Grid item xs={12} md={8}>
           <Box sx={{ position: "relative" }}>
             <CardMedia
               component="img"
               image={property.image}
               alt={property.name}
-              sx={{ borderRadius: "12px", width: "100%" }}
+              sx={{
+                borderRadius: "12px",
+                width: "100%",
+                height: "620px",
+                objectFit: "cover",
+              }}
             />
-            {/* View Photos Overlay */}
             <Button
               variant="contained"
               sx={{
@@ -100,85 +108,56 @@ const VillaSection = ({ propertyId }) => {
                 color: "#fff",
                 "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.8)" },
               }}
+              onClick={() => setOpenGallery(true)}
             >
               View Photos
             </Button>
-            {/* Icons for Share and Favorite */}
-            <Box
-              sx={{
-                position: "absolute",
-                top: 16,
-                right: 16,
-                display: "flex",
-                gap: 1,
-              }}
-            >
-              <IconButton sx={{ backgroundColor: "#fff" }}>
-                <ShareIcon />
-              </IconButton>
-              <IconButton sx={{ backgroundColor: "#fff" }}>
-                <FavoriteBorderIcon />
-              </IconButton>
-            </Box>
           </Box>
         </Grid>
 
-        {/* Small Images */}
         <Grid item xs={12} md={4}>
           <Box display="flex" flexDirection="column" gap={2}>
-            <CardMedia
-              component="img"
-              image={property.image}
-              alt={property.name}
-              sx={{
-                borderRadius: "12px",
-                cursor: "pointer",
-                width: "100%",
-                height: "calc(50% - 8px)",
-              }}
-            />
-            <CardMedia
-              component="img"
-              image={property.image}
-              alt={property.name}
-              sx={{
-                borderRadius: "12px",
-                cursor: "pointer",
-                width: "100%",
-                height: "calc(50% - 8px)",
-              }}
-            />
+            {galleryImages.slice(0, 2).map((image) => (
+              <CardMedia
+                key={image.id}
+                component="img"
+                image={image.image}
+                alt={image.title || "Gallery Image"}
+                sx={{
+                  borderRadius: "12px",
+                  cursor: "pointer",
+                  width: "100%",
+                  height: "300px",
+                  objectFit: "cover",
+                }}
+              />
+            ))}
           </Box>
         </Grid>
       </Grid>
 
-      {/* Tags */}
-      <Box mt={2} display="flex" gap={1}>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: "#000",
-            color: "#fff",
-            textTransform: "none",
-            fontWeight: "bold",
-            "&:hover": { backgroundColor: "#333" },
-          }}
-        >
-          Best Rated
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: "#f5c518",
-            color: "#000",
-            textTransform: "none",
-            fontWeight: "bold",
-            "&:hover": { backgroundColor: "#e5b417" },
-          }}
-        >
-          Luxury
-        </Button>
-      </Box>
+
+      <Dialog open={openGallery} onClose={() => setOpenGallery(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Gallery</DialogTitle>
+        <DialogContent>
+          <Box display="flex" flexDirection="column" gap={2}>
+            {galleryImages.map((image) => (
+              <CardMedia
+                key={image.id}
+                component="img"
+                image={image.image}
+                alt={image.title || "Gallery Image"}
+                sx={{
+                  borderRadius: "12px",
+                  width: "100%",
+                  height: "500px",
+                  objectFit: "cover",
+                }}
+              />
+            ))}
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };
