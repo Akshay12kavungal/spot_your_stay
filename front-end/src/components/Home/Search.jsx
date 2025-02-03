@@ -93,9 +93,10 @@ const SearchBar = () => {
         "http://127.0.0.1:8000/api/bookings/",
         {
           property: id,
+          user: 1,
           check_in: checkIn,
           check_out: checkOut,
-          total_amount: 5000, // Set total dynamically if needed
+          // total_amount: 5000, // Set total dynamically if needed
           status: "bookings",
         },
         {

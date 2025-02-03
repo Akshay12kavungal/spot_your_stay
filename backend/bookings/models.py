@@ -14,7 +14,7 @@ class Booking(models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='bookings')
     check_in = models.DateField()
     check_out = models.DateField()
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
 
     def __str__(self):
