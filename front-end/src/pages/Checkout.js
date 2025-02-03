@@ -28,6 +28,29 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Function to calculate the number of days between check-in and check-out
+  const calculateDays = (checkInDate, checkOutDate) => {
+    const checkInDateObj = new Date(checkInDate);
+    const checkOutDateObj = new Date(checkOutDate);
+    if (isNaN(checkInDateObj.getTime()) || isNaN(checkOutDateObj.getTime())) {
+      return 0; // Return 0 if dates are invalid
+    }
+    const timeDifference = checkOutDateObj - checkInDateObj;
+    return timeDifference / (1000 * 3600 * 24); // Convert milliseconds to days
+  };
+
+  // Calculate the total price based on days and rental price from the backend (price field)
+  const calculateTotalPrice = () => {
+    if (property && checkIn && checkOut) {
+      const days = calculateDays(checkIn, checkOut);
+      const rentalCharges = property.price ? property.price * days : 0;
+      const gst = rentalCharges * 0.18; // Assuming 18% GST
+      const totalPrice = rentalCharges + gst;
+      return { rentalCharges, gst, totalPrice };
+    }
+    return { rentalCharges: 0, gst: 0, totalPrice: 0 };
+  };
+
   useEffect(() => {
     const getPropertyDetails = async () => {
       if (!propertyId) {
@@ -80,6 +103,9 @@ const CheckoutPage = () => {
     );
   }
 
+  // Calculate price details
+  const { rentalCharges, gst, totalPrice } = calculateTotalPrice();
+
   return (
     <div>
       <Header2 />
@@ -115,55 +141,50 @@ const CheckoutPage = () => {
                       </Box>
                     </Box>
                   </Grid>
-                  
-                 
-                  
-                    {/* Guests & Rooms */}
-                    <Grid item xs={6}>
-                      <Box display="flex" alignItems="center">
-                        <PeopleIcon fontSize="small" sx={{ marginRight: 1 }} />
-                        <Box>
-                          <Typography variant="body2" color="textSecondary">
-                            Guests
-                          </Typography>
-                          <Typography variant="body1"> {property?.guests || "Not specified"} Guests </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                    <Grid item xs={6}>
+                  {/* Guests & Rooms */}
+                  <Grid item xs={6}>
                     <Box display="flex" alignItems="center">
-                    <HotelIcon fontSize="small" sx={{ marginRight: 1 }} /> {/* Room Icon */}
-                        <Box>
-                        <Typography variant="body2" color="textSecondary">
-                          No. of Rooms
-                        </Typography>
-                        <Typography variant="body1"> {property?.rooms || "Not specified"}  Rooms </Typography>
+                      <PeopleIcon fontSize="small" sx={{ marginRight: 1 }} />
+                      <Box>
+                        <Typography variant="body2" color="textSecondary">Guests</Typography>
+                        <Typography variant="body1">{property?.guests || "Not specified"} Guests</Typography>
                       </Box>
-                      </Box>
-                    </Grid>
+                    </Box>
                   </Grid>
-                </CardContent>
-              </Card>
-            </Grid>
-    
+                  <Grid item xs={6}>
+                    <Box display="flex" alignItems="center">
+                      <HotelIcon fontSize="small" sx={{ marginRight: 1 }} />
+                      <Box>
+                        <Typography variant="body2" color="textSecondary">No. of Rooms</Typography>
+                        <Typography variant="body1">{property?.rooms || "Not specified"} Rooms</Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+
           {/* Price Details Section */}
           <Grid item xs={12} md={4}>
             <Card variant="outlined">
               <CardContent>
-                <Typography variant="h6">Price Details</Typography>
+                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                  Price Details
+                </Typography>
                 <Divider sx={{ marginY: 2 }} />
                 <Box display="flex" justifyContent="space-between" marginBottom={2}>
-                  <Typography>Rental Charges</Typography>
-                  <Typography>₹4,87,100</Typography>
+                  <Typography variant="body1">Rental Charges</Typography>
+                  <Typography variant="body1">₹{rentalCharges.toLocaleString()}</Typography>
                 </Box>
                 <Box display="flex" justifyContent="space-between" marginBottom={2}>
-                  <Typography>GST</Typography>
-                  <Typography>₹87,678</Typography>
+                  <Typography variant="body1">GST (18%)</Typography>
+                  <Typography variant="body1">₹{gst.toLocaleString()}</Typography>
                 </Box>
                 <Divider sx={{ marginY: 2 }} />
                 <Box display="flex" justifyContent="space-between" marginBottom={2}>
-                  <Typography variant="h6">Total Payable</Typography>
-                  <Typography variant="h6">₹5,74,778</Typography>
+                  <Typography variant="h6" fontWeight="bold">Total Payable</Typography>
+                  <Typography variant="h6" fontWeight="bold">₹{totalPrice.toLocaleString()}</Typography>
                 </Box>
                 <Button variant="contained" color="primary" fullWidth>
                   Continue
