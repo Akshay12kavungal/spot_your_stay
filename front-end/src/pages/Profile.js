@@ -23,9 +23,22 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/users/register/");
-        const userData = response.data; // Assuming the API returns an object with username and email
-        setUsername(userData.username);
+        const token = localStorage.getItem("access_token"); // Retrieve access token
+        if (!token) {
+          setErrorMessage("You must be logged in to view your profile.");
+          return;
+        }
+
+        const response = await axios.get("http://localhost:8000/api/users/profile/", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("API response:", response.data); // Check what the response looks like
+        const userData = response.data;
+
+        setUsername(userData.username);  // Ensure this matches the API response structure
         setEmail(userData.email);
       } catch (error) {
         console.error("Failed to fetch user details:", error);
@@ -46,11 +59,20 @@ const Profile = () => {
     }
 
     try {
-      const response = await axios.put("http://127.0.0.1:8000/api/users/update/", {
-        username,
-        email,
-        password,
-      });
+      const token = localStorage.getItem("access_token"); // Ensure token is available
+      const response = await axios.put(
+        "http://127.0.0.1:8000/api/users/profile/", 
+        {
+          username,
+          email,
+          password,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       alert("Profile updated successfully!");
       setShowProfileEdit(false);
@@ -188,10 +210,10 @@ const Profile = () => {
           ) : (
             <Box>
               <Typography variant="body1" color="textSecondary" paragraph>
-                Username: {username}
+                Username: {username || "Loading..."}  {/* Display 'Loading...' until username is available */}
               </Typography>
               <Typography variant="body1" color="textSecondary" paragraph>
-                Email: {email}
+                Email: {email || "Loading..."}  {/* Display 'Loading...' until email is available */}
               </Typography>
             </Box>
           )}

@@ -1,18 +1,18 @@
 import React from 'react';
 import Header from '../components/Header';
 import VideoSection from '../components/Home/Video';
-import DestinationCarousel from '../components/Home/Destinations';
+// import DestinationCarousel from '../components/Home/Destinations';
 import TrendingSection from '../components/Home/TrendingSection';
 import TrendingCollections from '../components/Home/Collections';
 import Carousel from '../components/Home/Carousal';
-import OffersSection from '../components/Home/Offers';
-import BestRated from '../components/Home/BestRated';
+// import OffersSection from '../components/Home/Offers';
+// import BestRated from '../components/Home/BestRated';
 import Footer from '../components/Footer';
 import Youtube from '../components/Home/YoutubeVideo';
-import TestimonialSection from '../components/Home/Testimonials';
+// import TestimonialSection from '../components/Home/Testimonials';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';  // Import WhatsApp Icon
 import { IconButton } from '@mui/material';  // Import IconButton for styling
-import SearchBar from '../components/Home/Search';
+// import SearchBar from '../components/Home/Search';
 import LocationsSection from '../components/Home/Aboutus';
 
 function Home() {
@@ -37,7 +37,7 @@ function Home() {
         <div><Youtube /></div>
         {/* <div><OffersSection /></div> */}
         {/* <div><CelebrityCarousel /></div> */}
-        <div><TestimonialSection /></div>
+        {/* <div><TestimonialSection /></div> */}
         <Footer />
 
         {/* WhatsApp Icon Floating */}

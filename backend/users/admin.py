@@ -1,12 +1,11 @@
 from django.contrib import admin
-from .models import CustomUser
+from .models import UserProfile
 
 # Register your models here.
-admin.site.register(CustomUser)
-class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'phone_number', 'is_staff')
-    list_filter = ('is_staff', 'is_superuser')
-    search_fields = ('username', 'email', 'phone_number')
+admin.site.register(UserProfile)    
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone_number', 'address', 'profile_picture')
+
 
 
 # your_app/admin.py

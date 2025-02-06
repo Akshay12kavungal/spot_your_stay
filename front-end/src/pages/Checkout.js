@@ -13,7 +13,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { useLocation } from "react-router-dom";
 import Header2 from "../components/Header2";
 import PeopleIcon from "@mui/icons-material/People";
-import HotelIcon from "@mui/icons-material/Hotel"; // Import Room Icon
+import HotelIcon from "@mui/icons-material/Hotel";
 import Footer from "../components/Footer";
 import axios from "axios";
 
@@ -25,34 +25,74 @@ const CheckoutPage = () => {
   const checkOut = params.get("checkout");
 
   const [property, setProperty] = useState(null);
+  const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Function to calculate the number of days between check-in and check-out
+  // Function to calculate the number of days
   const calculateDays = (checkInDate, checkOutDate) => {
     const checkInDateObj = new Date(checkInDate);
     const checkOutDateObj = new Date(checkOutDate);
     if (isNaN(checkInDateObj.getTime()) || isNaN(checkOutDateObj.getTime())) {
-      return 0; // Return 0 if dates are invalid
+      return 0;
     }
     const timeDifference = checkOutDateObj - checkInDateObj;
-    return timeDifference / (1000 * 3600 * 24); // Convert milliseconds to days
+    return timeDifference / (1000 * 3600 * 24);
   };
 
-  // Calculate the total price based on days and rental price from the backend (price field)
   const calculateTotalPrice = () => {
     if (property && checkIn && checkOut) {
       const days = calculateDays(checkIn, checkOut);
       const rentalCharges = property.price ? property.price * days : 0;
-      const gst = rentalCharges * 0.18; // Assuming 18% GST
+      const gst = rentalCharges * 0.18;
       const totalPrice = rentalCharges + gst;
       return { rentalCharges, gst, totalPrice };
     }
     return { rentalCharges: 0, gst: 0, totalPrice: 0 };
   };
 
+  const handlePayment = async () => {
+    if (!property || !checkIn || !checkOut) {
+      setError("Please ensure all payment details are filled.");
+      return;
+    }
+  
+    const { rentalCharges, gst, totalPrice } = calculateTotalPrice();
+  
+    try {
+      // Check if booking is available
+      const bookingId = booking?.id;
+  
+      // Send payment request to backend
+      const paymentResponse = await axios.post(
+        "http://127.0.0.1:8000/api/payments/", // Your payment endpoint
+        {
+          amount: totalPrice,
+          payment_date: new Date().toISOString(), // Ensure the date format is correct
+          payment_status: "completed", // Assuming the payment is successful
+          booking: bookingId || null, // Add booking ID if available, otherwise null
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+  
+      if (paymentResponse.status === 201) {
+        alert("Payment successfully saved!");
+        // Optionally, redirect to another page or reset the form
+      } else {
+        setError("Failed to process payment.");
+      }
+    } catch (err) {
+      console.error("Error saving payment:", err);
+      setError("Failed to save payment. Error: " + (err.response?.data?.detail || err.message));
+    }
+  };
+  
+
   useEffect(() => {
-    const getPropertyDetails = async () => {
+    const fetchDetails = async () => {
       if (!propertyId) {
         setError("Invalid property ID");
         setLoading(false);
@@ -60,7 +100,8 @@ const CheckoutPage = () => {
       }
 
       try {
-        const response = await axios.get(
+        // Fetch property details
+        const propertyResponse = await axios.get(
           `http://127.0.0.1:8000/api/properties/${propertyId}/`,
           {
             headers: { "Content-Type": "application/json" },
@@ -68,22 +109,34 @@ const CheckoutPage = () => {
           }
         );
 
-        if (response.status === 200) {
-          console.log("Fetched Property Details:", response.data);
-          setProperty(response.data);
+        // Fetch booking details based on property and date range
+        const bookingResponse = await axios.get(
+          `http://127.0.0.1:8000/api/bookings/?property=${propertyId}&check_in=${checkIn}&check_out=${checkOut}`,
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        );
+
+        if (propertyResponse.status === 200) {
+          setProperty(propertyResponse.data);
+        }
+
+        if (bookingResponse.status === 200 && bookingResponse.data.length > 0) {
+          setBooking(bookingResponse.data[0]); // Get the first matching booking
         } else {
-          setError("Property details not available.");
+          setError("No booking found for these dates.");
         }
       } catch (err) {
-        console.error("Error fetching property details:", err);
-        setError("Failed to fetch property details.");
+        console.error("Error fetching details:", err);
+        setError("Failed to fetch details.");
       } finally {
         setLoading(false);
       }
     };
 
-    getPropertyDetails();
-  }, [propertyId]);
+    fetchDetails();
+  }, [propertyId, checkIn, checkOut]);
 
   if (loading) {
     return (
@@ -103,8 +156,8 @@ const CheckoutPage = () => {
     );
   }
 
-  // Calculate price details
   const { rentalCharges, gst, totalPrice } = calculateTotalPrice();
+  const guests = booking ? booking.guests : "Not specified";
 
   return (
     <div>
@@ -141,13 +194,12 @@ const CheckoutPage = () => {
                       </Box>
                     </Box>
                   </Grid>
-                  {/* Guests & Rooms */}
                   <Grid item xs={6}>
                     <Box display="flex" alignItems="center">
                       <PeopleIcon fontSize="small" sx={{ marginRight: 1 }} />
                       <Box>
                         <Typography variant="body2" color="textSecondary">Guests</Typography>
-                        <Typography variant="body1">{property?.guests || "Not specified"} Guests</Typography>
+                        <Typography variant="body1">{guests} Guests</Typography>
                       </Box>
                     </Box>
                   </Grid>
@@ -186,8 +238,8 @@ const CheckoutPage = () => {
                   <Typography variant="h6" fontWeight="bold">Total Payable</Typography>
                   <Typography variant="h6" fontWeight="bold">₹{totalPrice.toLocaleString()}</Typography>
                 </Box>
-                <Button variant="contained" color="primary" fullWidth>
-                  Continue
+                <Button variant="contained" color="primary" fullWidth onClick={handlePayment}>
+                  Pay Now
                 </Button>
               </CardContent>
             </Card>

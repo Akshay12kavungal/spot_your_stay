@@ -48,8 +48,9 @@ const SearchBar = () => {
   const { id } = useParams(); // Get Property ID from URL
   const navigate = useNavigate();
   const [propertyDetails, setPropertyDetails] = useState(null);
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
+  const [startDate, setStartDate] = useState(""); 
+  const [endDate, setEndDate] = useState("");
+  const [guests, setGuests] = useState(1); // Using local state for guests
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -83,42 +84,34 @@ const SearchBar = () => {
   }, [id]);
 
   const handleBooking = async () => {
-    if (!checkIn || !checkOut) {
-      alert("Please select check-in/check-out dates.");
-      return;
-    }
-  
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/bookings/",
+        "http://127.0.0.1:8000/api/bookings/", // Ensure this matches your Django URLs
         {
           property: id,
-          user: 1,
-          check_in: checkIn,
-          check_out: checkOut,
-          // total_amount: 5000, // Set total dynamically if needed
+          user: 9,  // Manually setting user ID for testing
+          check_in: startDate,  // Ensure field names match your model
+          check_out: endDate,
+          guests,
           status: "bookings",
         },
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
       );
   
       if (response.status === 201) {
-        navigate(`/checkout?property=${id}&checkin=${checkIn}&checkout=${checkOut}`);
+        navigate(`/checkout?property=${id}&checkin=${startDate}&checkout=${endDate}&guests=${guests}`);
       } else {
         alert("Booking failed! Please try again.");
       }
     } catch (error) {
       console.error("Booking Error:", error.response?.data);
-      alert("Error: Could not create booking.");
+      alert(`Error: ${JSON.stringify(error.response?.data) || "Could not create booking."}`);
     }
   };
   
-
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
@@ -129,7 +122,7 @@ const SearchBar = () => {
 
   return (
     <SearchContainer>
-      <Title>Pick a Destination</Title>
+      <Title>Book Your Stay</Title>
       <InputGroup>
         <TextField
           label="Property Name"
@@ -142,21 +135,29 @@ const SearchBar = () => {
           type="date"
           InputLabelProps={{ shrink: true }}
           fullWidth
-          value={checkIn}
-          onChange={(e) => setCheckIn(e.target.value)}
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
         />
         <TextField
           label="Check-out"
           type="date"
           InputLabelProps={{ shrink: true }}
           fullWidth
-          value={checkOut}
-          onChange={(e) => setCheckOut(e.target.value)}
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
+        <TextField
+          label="Guests"
+          type="number"
+          fullWidth
+          value={propertyDetails ? propertyDetails.guests : ""} // Now using local state, not propertyDetails
+          onChange={(e) => setGuests(e.target.value)}
         />
         <SearchButton onClick={handleBooking} variant="contained">
           Book Now
         </SearchButton>
       </InputGroup>
+      {error && <Typography color="error">{error}</Typography>}
     </SearchContainer>
   );
 };
