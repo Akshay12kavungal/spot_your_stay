@@ -10,6 +10,8 @@ import ProtectedData from './pages/ProtectedData';
 import Logout from './pages/logout';
 import Profile from './pages/Profile';
 import TrendingSection from './components/Home/TrendingSection';
+import ContactForm from './components/Home/ContactForm';
+import FAQList from './components/Home/FAQList';
 
 
 function App() {
@@ -28,6 +30,8 @@ function App() {
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/gallery" element={<GallerySection />} />
         <Route path="/" element={<TrendingSection />} />
+        <Route path="/contactform" element={<ContactForm />} />
+        <Route path="/faq" element={<FAQList />} />
 
       </Routes>
     </div>
