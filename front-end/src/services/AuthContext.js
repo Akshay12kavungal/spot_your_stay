@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await axios.post("/api/token/", { username, password });
             setAuthTokens(response.data);
-            localStorage.setItem("authTokens", JSON.stringify(response.data));
+            localStorage.setItem("authTokens", JSON.stringify(response.data)        );
         } catch (error) {
             console.error("Login failed", error);
         }

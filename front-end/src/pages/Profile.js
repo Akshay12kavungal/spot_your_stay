@@ -31,15 +31,27 @@ const Profile = () => {
 
         const response = await axios.get("http://localhost:8000/api/users/profile/", {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("access_token") || token}`,
           },
         });
 
-        console.log("API response:", response.data); // Check what the response looks like
-        const userData = response.data;
+        console.log("API response:", response.data); // Check the response
+        const userDataArray = response.data;
 
-        setUsername(userData.username);  // Ensure this matches the API response structure
-        setEmail(userData.email);
+        const userProfile = getUserProfile(response.data);
+        setUsername(userProfile.user.username);
+        setEmail(userProfile.user.email);
+
+      //    if (Array.isArray(userDataArray) && userDataArray.length > 0) {
+      //     const firstUser = userDataArray[0]; // Access the first object in the array
+      //     console.log(firstUser, "userData");
+      //     console.log(firstUser.user.username);
+
+      //     setUsername(firstUser.user.username);
+      //     setEmail(firstUser.user.email);
+      //   } else {
+      //     setErrorMessage("No user data found.");
+      //   }
       } catch (error) {
         console.error("Failed to fetch user details:", error);
         setErrorMessage("Failed to load user details. Please try again.");
@@ -48,6 +60,13 @@ const Profile = () => {
 
     fetchUserDetails();
   }, []); // Run once when the component mounts
+
+
+  const getUserProfile = (profiles) => {
+    const storedUsername = localStorage.getItem("username");
+    const userProfile = profiles.find(profile => profile.user.username === storedUsername);
+    return userProfile;
+  };
 
   const handleSubmitUpdate = async (e) => {
     e.preventDefault();
@@ -69,7 +88,7 @@ const Profile = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${localStorage.getItem("access_token") || token}`,
           },
         }
       );

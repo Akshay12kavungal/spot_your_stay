@@ -83,13 +83,46 @@ const SearchBar = () => {
     }
   }, [id]);
 
-  const handleBooking = async () => {
+  const userId = async () => {
     try {
+      const response = await axios.get("http://127.0.0.1:8000/api/users/profile/", {
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}` // Include the token for authentication
+        },
+        withCredentials: true,
+      });
+  
+      if (response.status === 200) {
+        // Dynamically find the logged-in user based on the token/session
+        const currentUser = response.data.find((user) => {
+          return user.user.email === localStorage.getItem("current_user_email"); // Match the email or any unique field
+        });
+        return currentUser ? currentUser.user.id : null; // Return current user's ID if found
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching user ID:", error);
+      return null;
+    }
+  };
+  
+
+  const handleBooking = async () => {
+    
+    try {
+
+        const user = await userId();
+        if (!user) {
+          alert("User not found. Please log in again.");
+          return;
+        }
       const response = await axios.post(
         "http://127.0.0.1:8000/api/bookings/", // Ensure this matches your Django URLs
         {
           property: id,
-          user: 9,  // Manually setting user ID for testing
+            user,  // Manually setting user ID for testing
           check_in: startDate,  // Ensure field names match your model
           check_out: endDate,
           guests,

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import { Box, Card, CardContent, TextField, Typography, Alert, Link } from "@mui/material";
 
@@ -28,7 +28,7 @@ const LoginRegister = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLogin, setIsLogin] = useState(true);
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleSubmitRegister = async (e) => {
     e.preventDefault();
@@ -45,7 +45,6 @@ const LoginRegister = () => {
         email,
         password,
       });
-
       alert("Registration successful! You can now log in.");
       setIsLogin(true);
     } catch (error) {
@@ -56,26 +55,20 @@ const LoginRegister = () => {
   const handleSubmitLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-  
+
     try {
       const response = await axios.post("http://localhost:8000/api/token/", {
         username,
         password,
       });
-  
-      // Save the token in localStorage
       localStorage.setItem("access_token", response.data.access);
       localStorage.setItem("refresh_token", response.data.refresh);
-  
-      // Log the token to check if it's saved
-      console.log("Access Token saved:", localStorage.getItem("access_token"));
-      console.log("Refresh Token saved:", localStorage.getItem("refresh_token"));
-  
+      localStorage.setItem("username", username);
       alert("Login successful!");
-  
-      // Redirect to home page
-      navigate("/");
-  
+      setTimeout(() => {
+        navigate("/"); 
+        window.location.reload(); 
+      }, 100);
     } catch (error) {
       setErrorMessage("Invalid username or password.");
     }
@@ -92,9 +85,7 @@ const LoginRegister = () => {
           <Typography variant="body2" color="textSecondary" textAlign="center" marginBottom={3}>
             {isLogin ? "Please log in to access your account." : "Please fill in the details to create a new account."}
           </Typography>
-
           {errorMessage && <Alert severity="error" sx={{ marginBottom: 2 }}>{errorMessage}</Alert>}
-
           <form onSubmit={isLogin ? handleSubmitLogin : handleSubmitRegister}>
             <Box marginBottom={2}>
               <TextField fullWidth label="Username" value={username} onChange={(e) => setUsername(e.target.value)} required variant="outlined" placeholder="Enter your username" />
@@ -114,7 +105,6 @@ const LoginRegister = () => {
             )}
             <LuxuryButton type="submit">{isLogin ? "Login" : "Register"}</LuxuryButton>
           </form>
-
           <Box textAlign="center" marginTop={3}>
             <Typography variant="body2" gutterBottom>
               {isLogin ? "Don't have an account? " : "Already have an account? "}
