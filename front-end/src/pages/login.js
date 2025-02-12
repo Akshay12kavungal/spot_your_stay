@@ -30,6 +30,38 @@ const LoginRegister = () => {
 
   const navigate = useNavigate();
 
+  // Utility function to check if the token has expired
+  const isTokenExpired = () => {
+    const expirationTime = localStorage.getItem("token_expiration");
+    if (!expirationTime) return true; // No expiration time stored, assume expired
+
+    const currentTime = new Date().getTime();
+    return currentTime > parseInt(expirationTime, 10);
+  };
+
+  // Utility function to refresh the token
+  const refreshToken = async () => {
+    try {
+      const response = await axios.post("http://localhost:8000/api/token/refresh/", {
+        refresh: localStorage.getItem("refresh_token"),
+      });
+
+      // Update the access token and its expiration time
+      localStorage.setItem("access_token", response.data.access);
+      const expiresIn = 3600; // Example: 1 hour in seconds
+      const expirationTime = new Date().getTime() + expiresIn * 1000;
+      localStorage.setItem("token_expiration", expirationTime);
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+      // Handle token refresh failure (e.g., log out the user)
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("token_expiration");
+      navigate("/login");
+    }
+  };
+
+  // Handle registration
   const handleSubmitRegister = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -52,6 +84,7 @@ const LoginRegister = () => {
     }
   };
 
+  // Handle login
   const handleSubmitLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -61,9 +94,17 @@ const LoginRegister = () => {
         username,
         password,
       });
+
+      // Store the tokens, username, and expiration time in localStorage
       localStorage.setItem("access_token", response.data.access);
       localStorage.setItem("refresh_token", response.data.refresh);
       localStorage.setItem("username", username);
+
+      // Calculate and store the token expiration time
+      const expiresIn = 3600; // Example: 1 hour in seconds
+      const expirationTime = new Date().getTime() + expiresIn * 1000;
+      localStorage.setItem("token_expiration", expirationTime);
+
       alert("Login successful!");
       setTimeout(() => {
         navigate("/"); 
@@ -73,7 +114,26 @@ const LoginRegister = () => {
       setErrorMessage("Invalid username or password.");
     }
   };
-  
+
+  // Example of making an authenticated request
+  const makeAuthenticatedRequest = async () => {
+    if (isTokenExpired()) {
+      await refreshToken();
+    }
+
+    // Proceed with the authenticated request
+    try {
+      const response = await axios.get("http://localhost:8000/api/protected-endpoint/", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error("Request failed:", error);
+    }
+  };
+
   return (
     <Box sx={{ display: "flex", justifyContent: "center", height: "100vh", padding: 2 }}>
       <Card sx={{ display: "flex", width: "100%", maxWidth: 900, height: "500px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", borderRadius: 2 }}>

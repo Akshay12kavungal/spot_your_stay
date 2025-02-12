@@ -3,7 +3,7 @@ import VillaSection from "../components/SingleView/Photos";
 import VillaDetailsSection from "../components/SingleView/Details";
 import ScrollableRooms from "../components/SingleView/Spaces";
 import SearchBar from "../components/Home/Search";
-import Header2 from "../components/Header2";
+import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useParams } from "react-router-dom";
 
@@ -13,7 +13,7 @@ function SingleView() {
   if (!propertyId) {
     return (
       <div>
-        <Header2 />
+        <Header />
         <div style={{ marginTop: "80px", textAlign: "center" }}>
           <h1>Property ID not found</h1>
         </div>
@@ -24,7 +24,7 @@ function SingleView() {
 
   return (
     <div>
-      <Header2 />
+      <Header/>
       <div style={{ marginTop: "80px" }}>
         <VillaSection propertyId={propertyId} />
       </div>

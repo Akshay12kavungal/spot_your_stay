@@ -50,7 +50,7 @@ const SearchBar = () => {
   const [propertyDetails, setPropertyDetails] = useState(null);
   const [startDate, setStartDate] = useState(""); 
   const [endDate, setEndDate] = useState("");
-  const [guests, setGuests] = useState(1); // Using local state for guests
+  const [guests, setGuests] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -67,6 +67,7 @@ const SearchBar = () => {
 
         if (response.status === 200) {
           setPropertyDetails(response.data);
+          setGuests(response.data.guests || 1); // Set guests dynamically from API
         } else {
           setError("Property not found.");
         }
@@ -83,57 +84,65 @@ const SearchBar = () => {
     }
   }, [id]);
 
-  const userId = async () => {
+  const fetchUserId = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/users/profile/", {
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}` // Include the token for authentication
-        },
-        withCredentials: true,
-      });
-  
-      if (response.status === 200) {
-        // Dynamically find the logged-in user based on the token/session
-        const currentUser = response.data.find((user) => {
-          return user.user.email === localStorage.getItem("current_user_email"); // Match the email or any unique field
-        });
-        return currentUser ? currentUser.user.id : null; // Return current user's ID if found
-      } else {
+      const username = localStorage.getItem("username");
+      if (!username) {
+        console.error("Username not found in local storage.");
         return null;
       }
+
+      const response = await axios.get(
+        `http://127.0.0.1:8000/api/users/profile/${username}/`, 
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        return response.data.user.id; 
+      }
     } catch (error) {
-      console.error("Error fetching user ID:", error);
-      return null;
+      console.error("Error fetching user ID:", error.response?.data || error);
+    }
+    return null;
+  };
+
+  const handleGuestsChange = (e) => {
+    const value = parseInt(e.target.value, 10);
+    if (propertyDetails && value > propertyDetails.guests) {
+      setGuests(propertyDetails.guests); // Restrict guests to max allowed
+    } else {
+      setGuests(value);
     }
   };
-  
 
   const handleBooking = async () => {
-    
     try {
+      const user = await fetchUserId();
+      if (!user) {
+        alert("User not found. Please log in again.");
+        return;
+      }
 
-        const user = await userId();
-        if (!user) {
-          alert("User not found. Please log in again.");
-          return;
-        }
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/bookings/", // Ensure this matches your Django URLs
+        "http://127.0.0.1:8000/api/bookings/",
         {
           property: id,
-            user,  // Manually setting user ID for testing
-          check_in: startDate,  // Ensure field names match your model
+          user: user,  
+          check_in: startDate,  
           check_out: endDate,
           guests,
           status: "bookings",
         },
         {
           headers: { "Content-Type": "application/json" },
-          withCredentials: true,
         }
       );
-  
+
       if (response.status === 201) {
         navigate(`/checkout?property=${id}&checkin=${startDate}&checkout=${endDate}&guests=${guests}`);
       } else {
@@ -144,7 +153,7 @@ const SearchBar = () => {
       alert(`Error: ${JSON.stringify(error.response?.data) || "Could not create booking."}`);
     }
   };
-  
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
@@ -180,11 +189,15 @@ const SearchBar = () => {
           onChange={(e) => setEndDate(e.target.value)}
         />
         <TextField
-          label="Guests"
+          label={`Guests (Max: ${propertyDetails?.guests || 1})`}
           type="number"
           fullWidth
-          value={propertyDetails ? propertyDetails.guests : ""} // Now using local state, not propertyDetails
-          onChange={(e) => setGuests(e.target.value)}
+          value={guests} 
+          onChange={handleGuestsChange}
+          inputProps={{
+            min: 1,
+            max: propertyDetails?.guests || 1,
+          }}
         />
         <SearchButton onClick={handleBooking} variant="contained">
           Book Now

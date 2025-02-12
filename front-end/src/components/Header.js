@@ -81,15 +81,7 @@ const Header = () => {
     
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("scribe_extension_state");
-  localStorage.removeItem("groceryadmin");
-
-  document.cookie.split(";").forEach((cookie) => {
-    document.cookie = cookie
-      .replace(/^ +/, "") // Trim spaces
-      .replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
-  });
+ 
 
   alert("Logged out successfully!");
   window.location.reload(); // Refresh to reflect logout

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework import permissions
 
 # Create your views here.
 
@@ -9,5 +10,6 @@ from .serializers import CarouselVideoSerializer
 class CarouselVideoViewSet(viewsets.ModelViewSet):
     queryset = CarouselVideo.objects.all()
     serializer_class = CarouselVideoSerializer
+    permission_classes = [permissions.AllowAny]
 
     

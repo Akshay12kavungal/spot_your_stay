@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { useLocation } from "react-router-dom";
-import Header2 from "../components/Header2";
+import Header from "../components/Header";
 import PeopleIcon from "@mui/icons-material/People";
 import HotelIcon from "@mui/icons-material/Hotel";
 import Footer from "../components/Footer";
@@ -23,6 +23,7 @@ const CheckoutPage = () => {
   const propertyId = params.get("property");
   const checkIn = params.get("checkin");
   const checkOut = params.get("checkout");
+  const guestsFromUrl = params.get("guests") || "Not specified";
 
   const [property, setProperty] = useState(null);
   const [booking, setBooking] = useState(null);
@@ -65,12 +66,12 @@ const CheckoutPage = () => {
   
       // Send payment request to backend
       const paymentResponse = await axios.post(
-        "http://127.0.0.1:8000/api/payments/", // Your payment endpoint
+        "http://127.0.0.1:8000/api/payments/",
         {
           amount: totalPrice,
-          payment_date: new Date().toISOString(), // Ensure the date format is correct
-          payment_status: "completed", // Assuming the payment is successful
-          booking: bookingId || null, // Add booking ID if available, otherwise null
+          payment_date: new Date().toISOString(),
+          payment_status: "completed",
+          booking: bookingId || null,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -80,7 +81,6 @@ const CheckoutPage = () => {
   
       if (paymentResponse.status === 201) {
         alert("Payment successfully saved!");
-        // Optionally, redirect to another page or reset the form
       } else {
         setError("Failed to process payment.");
       }
@@ -89,7 +89,6 @@ const CheckoutPage = () => {
       setError("Failed to save payment. Error: " + (err.response?.data?.detail || err.message));
     }
   };
-  
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -100,7 +99,6 @@ const CheckoutPage = () => {
       }
 
       try {
-        // Fetch property details
         const propertyResponse = await axios.get(
           `http://127.0.0.1:8000/api/properties/${propertyId}/`,
           {
@@ -109,7 +107,6 @@ const CheckoutPage = () => {
           }
         );
 
-        // Fetch booking details based on property and date range
         const bookingResponse = await axios.get(
           `http://127.0.0.1:8000/api/bookings/?property=${propertyId}&check_in=${checkIn}&check_out=${checkOut}`,
           {
@@ -123,7 +120,7 @@ const CheckoutPage = () => {
         }
 
         if (bookingResponse.status === 200 && bookingResponse.data.length > 0) {
-          setBooking(bookingResponse.data[0]); // Get the first matching booking
+          setBooking(bookingResponse.data[0]);
         } else {
           setError("No booking found for these dates.");
         }
@@ -157,14 +154,13 @@ const CheckoutPage = () => {
   }
 
   const { rentalCharges, gst, totalPrice } = calculateTotalPrice();
-  const guests = booking ? booking.guests : "Not specified";
+  const guests = guestsFromUrl;
 
   return (
     <div>
-      <Header2 />
+      <Header/>
       <Box sx={{ padding: "24px", maxWidth: "1200px", margin: "0 auto", marginTop: "80px" }}>
         <Grid container spacing={4}>
-          {/* Property Details */}
           <Grid item xs={12} md={8}>
             <Card variant="outlined">
               <CardContent>
@@ -217,7 +213,6 @@ const CheckoutPage = () => {
             </Card>
           </Grid>
 
-          {/* Price Details Section */}
           <Grid item xs={12} md={4}>
             <Card variant="outlined">
               <CardContent>

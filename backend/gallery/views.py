@@ -2,10 +2,12 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from .models import GalleryImage
 from .serializers import GalleryImageSerializer
+from rest_framework import permissions
 
 class GalleryImageViewSet(viewsets.ModelViewSet):
     serializer_class = GalleryImageSerializer
     queryset = GalleryImage.objects.all()
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         """
