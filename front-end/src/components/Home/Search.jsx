@@ -1,9 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Box, Button, TextField, Typography, CircularProgress } from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  CircularProgress,
+  Modal,
+} from "@mui/material";
 import { styled } from "@mui/system";
 import { useNavigate, useParams } from "react-router-dom";
 
+// Styled components
 const SearchContainer = styled(Box)({
   display: "flex",
   maxWidth: "1200px",
@@ -36,6 +44,15 @@ const SearchButton = styled(Button)({
   },
 });
 
+const LuxuryButton = styled(Button)({
+  backgroundColor: "#000", // Black background
+  color: "#a89160", // Golden text color
+  fontWeight: "bold",
+  "&:hover": {
+    backgroundColor: "#333", // Darker black on hover
+  },
+});
+
 const Title = styled(Box)({
   fontSize: "24px",
   fontWeight: "600",
@@ -44,16 +61,53 @@ const Title = styled(Box)({
   letterSpacing: "1px",
 });
 
+// Modal style
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+  borderRadius: 8,
+  textAlign: "center",
+};
+
 const SearchBar = () => {
   const { id } = useParams(); // Get Property ID from URL
   const navigate = useNavigate();
   const [propertyDetails, setPropertyDetails] = useState(null);
-  const [startDate, setStartDate] = useState(""); 
+  const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [guests, setGuests] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [dateError, setDateError] = useState("");
+  const [modalOpen, setModalOpen] = useState(false); // State for modal visibility
+  const [modalContent, setModalContent] = useState(""); // State for modal content
 
+  // Get today's date in YYYY-MM-DD format
+  const getCurrentDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Get the next day's date in YYYY-MM-DD format
+  const getNextDayDate = (date) => {
+    const nextDay = new Date(date);
+    nextDay.setDate(nextDay.getDate() + 1);
+    const year = nextDay.getFullYear();
+    const month = String(nextDay.getMonth() + 1).padStart(2, "0");
+    const day = String(nextDay.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Fetch property details
   useEffect(() => {
     const fetchPropertyDetails = async () => {
       setLoading(true);
@@ -84,6 +138,50 @@ const SearchBar = () => {
     }
   }, [id]);
 
+  // Set default check-in and check-out dates
+  useEffect(() => {
+    const today = getCurrentDate();
+    setStartDate(today);
+    setEndDate(getNextDayDate(today));
+  }, []);
+
+  // Fetch existing bookings for the property
+  const fetchExistingBookings = async () => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/api/bookings/?property=${id}`, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.status === 200) {
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error fetching existing bookings:", error.response?.data || error);
+    }
+    return [];
+  };
+
+  // Check if the selected date range is available
+  const isDateRangeAvailable = (startDate, endDate, existingBookings) => {
+    const selectedStart = new Date(startDate);
+    const selectedEnd = new Date(endDate);
+
+    for (const booking of existingBookings) {
+      const bookingStart = new Date(booking.check_in);
+      const bookingEnd = new Date(booking.check_out);
+
+      if (
+        (selectedStart >= bookingStart && selectedStart < bookingEnd) ||
+        (selectedEnd > bookingStart && selectedEnd <= bookingEnd) ||
+        (selectedStart <= bookingStart && selectedEnd >= bookingEnd)
+      ) {
+        return false; // Overlap found
+      }
+    }
+    return true; // No overlap
+  };
+
+  // Fetch user ID from the backend
   const fetchUserId = async () => {
     try {
       const username = localStorage.getItem("username");
@@ -93,7 +191,7 @@ const SearchBar = () => {
       }
 
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/users/profile/${username}/`, 
+        `http://127.0.0.1:8000/api/users/profile/${username}/`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -103,7 +201,7 @@ const SearchBar = () => {
       );
 
       if (response.status === 200) {
-        return response.data.user.id; 
+        return response.data.user.id;
       }
     } catch (error) {
       console.error("Error fetching user ID:", error.response?.data || error);
@@ -111,6 +209,7 @@ const SearchBar = () => {
     return null;
   };
 
+  // Handle guests input change
   const handleGuestsChange = (e) => {
     const value = parseInt(e.target.value, 10);
     if (propertyDetails && value > propertyDetails.guests) {
@@ -120,20 +219,33 @@ const SearchBar = () => {
     }
   };
 
+  // Handle booking submission
   const handleBooking = async () => {
     try {
       const user = await fetchUserId();
       if (!user) {
-        alert("User not found. Please log in again.");
+        setModalContent("User not found. Please log in again.");
+        setModalOpen(true); // Open the modal
         return;
       }
+
+      const existingBookings = await fetchExistingBookings();
+      const isAvailable = isDateRangeAvailable(startDate, endDate, existingBookings);
+
+      if (!isAvailable) {
+        setModalContent("The selected dates are not available. Please choose different dates.");
+        setModalOpen(true); // Open the modal
+        return;
+      }
+
+      setDateError(""); // Clear any previous error
 
       const response = await axios.post(
         "http://127.0.0.1:8000/api/bookings/",
         {
           property: id,
-          user: user,  
-          check_in: startDate,  
+          user: user,
+          check_in: startDate,
           check_out: endDate,
           guests,
           status: "bookings",
@@ -154,6 +266,7 @@ const SearchBar = () => {
     }
   };
 
+  // Show loading spinner while fetching data
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
@@ -178,7 +291,13 @@ const SearchBar = () => {
           InputLabelProps={{ shrink: true }}
           fullWidth
           value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
+          onChange={(e) => {
+            setStartDate(e.target.value);
+            setEndDate(getNextDayDate(e.target.value)); // Update check-out date
+          }}
+          inputProps={{
+            min: getCurrentDate(), // Block previous dates
+          }}
         />
         <TextField
           label="Check-out"
@@ -187,12 +306,15 @@ const SearchBar = () => {
           fullWidth
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
+          inputProps={{
+            min: getNextDayDate(startDate), // Block dates before check-in
+          }}
         />
         <TextField
           label={`Guests (Max: ${propertyDetails?.guests || 1})`}
           type="number"
           fullWidth
-          value={guests} 
+          value={guests}
           onChange={handleGuestsChange}
           inputProps={{
             min: 1,
@@ -203,6 +325,31 @@ const SearchBar = () => {
           Book Now
         </SearchButton>
       </InputGroup>
+
+      {/* Modal for displaying errors */}
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        aria-labelledby="modal-title"
+        aria-describedby="modal-description"
+      >
+        <Box sx={modalStyle}>
+          <Typography id="modal-title" variant="h6" component="h2">
+            Error
+          </Typography>
+          <Typography id="modal-description" sx={{ mt: 2 }}>
+            {modalContent}
+          </Typography>
+          <LuxuryButton
+            variant="contained"
+            onClick={() => setModalOpen(false)}
+            sx={{ mt: 3 }}
+          >
+            Close
+          </LuxuryButton>
+        </Box>
+      </Modal>
+
       {error && <Typography color="error">{error}</Typography>}
     </SearchContainer>
   );

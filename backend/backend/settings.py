@@ -13,7 +13,29 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-$$njxsud42x82h_^oed
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+# Allowed Hosts
+# ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '192.168.43.157',
+    '192.168.43.157:8000',
+    'spotyourstay.com',
+    'www.spotyourstay.com'
+]
+
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS = config('DJANGO_CORS_ALLOWED_ORIGINS', default='http://localhost:3000').split(',')
+
+# CSRF Trusted Origins
+# CSRF_TRUSTED_ORIGINS = ['https://' + host for host in ALLOWED_HOSTS if host not in ['127.0.0.1', 'localhost']]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://192.168.43.157:3000"
+]
+
 
 # Application definition
 INSTALLED_APPS = [

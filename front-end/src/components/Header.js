@@ -76,7 +76,10 @@ const Header = () => {
     setShowLogin(!showlogin); // Toggle the login modal visibility
     handleMenuClose(); // Close the menu after action
   };
-
+  const handleBookings = () => {
+    navigate("/bookings"); // Redirect to the Bookings page
+  };
+  
   const handleLogout = () => {
     
   localStorage.removeItem("access_token");
@@ -117,16 +120,18 @@ return (
           </IconButton>
           <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
             <MenuItem onClick={handleMenuClose}>Explore</MenuItem>
-            <MenuItem onClick={handleMenuClose}>Luxury Getaways</MenuItem>
-            <MenuItem onClick={handleMenuClose}>List Your Property</MenuItem>
+            <MenuItem onClick={handleMenuClose}>Bookings</MenuItem>
             <MenuItem onClick={handleMenuClose}>
-              <PhoneIcon /> +91 9167 928 471
+              <PhoneIcon /> +91 9846865888
             </MenuItem>
             <MenuItem onClick={handleMenuClose}>
+            
               <NotificationsIcon color="error" />
+              Notifications
             </MenuItem>
             <MenuItem onClick={handleProfileMenuOpen}>
               <AccountCircleIcon />
+              My Account
             </MenuItem>
           </Menu>
           <Menu
@@ -144,12 +149,9 @@ return (
           <TransparentButton onClick={handleMenuOpen} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
             Explore
           </TransparentButton>
-          <LuxuryButton variant="contained" sx={{ marginRight: 1 }}>
-            Luxury Getaways
-          </LuxuryButton>
-          <TransparentButton color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
-            List Your Property
-          </TransparentButton>
+          <LuxuryButton onClick={handleBookings} variant="contained" sx={{ marginRight: 1 }}>
+          Bookings
+        </LuxuryButton>
           <TransparentButton startIcon={<PhoneIcon />} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
             +91 9167 928 471
           </TransparentButton>

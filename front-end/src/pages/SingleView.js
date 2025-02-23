@@ -3,7 +3,7 @@ import VillaSection from "../components/SingleView/Photos";
 import VillaDetailsSection from "../components/SingleView/Details";
 import ScrollableRooms from "../components/SingleView/Spaces";
 import SearchBar from "../components/Home/Search";
-import Header from "../components/Header";
+import Header from "../components/Header2";
 import Footer from "../components/Footer";
 import { useParams } from "react-router-dom";
 

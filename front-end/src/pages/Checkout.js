@@ -16,6 +16,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import HotelIcon from "@mui/icons-material/Hotel";
 import Footer from "../components/Footer";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const CheckoutPage = () => {
   const location = useLocation();
@@ -52,43 +53,88 @@ const CheckoutPage = () => {
     return { rentalCharges: 0, gst: 0, totalPrice: 0 };
   };
 
-  const handlePayment = async () => {
-    if (!property || !checkIn || !checkOut) {
-      setError("Please ensure all payment details are filled.");
-      return;
-    }
-  
-    const { rentalCharges, gst, totalPrice } = calculateTotalPrice();
-  
-    try {
-      // Check if booking is available
-      const bookingId = booking?.id;
-  
-      // Send payment request to backend
-      const paymentResponse = await axios.post(
-        "http://127.0.0.1:8000/api/payments/",
+
+
+// Inside the CheckoutPage component
+const navigate = useNavigate();
+
+const handlePayment = async () => {
+  if (!property || !checkIn || !checkOut) {
+    setError("Please ensure all payment details are filled.");
+    return;
+  }
+
+  const { rentalCharges, gst, totalPrice } = calculateTotalPrice();
+
+  try {
+    let bookingId = booking?.id;
+
+    // If no booking exists, create a new one
+    if (!bookingId) {
+      const bookingResponse = await axios.post(
+        "http://127.0.0.1:8000/api/bookings/",
         {
-          amount: totalPrice,
-          payment_date: new Date().toISOString(),
-          payment_status: "completed",
-          booking: bookingId || null,
+          property: propertyId,
+          check_in: checkIn,
+          check_out: checkOut,
+          guests: guestsFromUrl,
+          total_amount: totalPrice,
+          status: "Paid",
         },
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
       );
-  
-      if (paymentResponse.status === 201) {
-        alert("Payment successfully saved!");
+
+      if (bookingResponse.status === 201) {
+        bookingId = bookingResponse.data.id;
+        setBooking(bookingResponse.data);
       } else {
-        setError("Failed to process payment.");
+        setError("Failed to create a booking.");
+        return;
       }
-    } catch (err) {
-      console.error("Error saving payment:", err);
-      setError("Failed to save payment. Error: " + (err.response?.data?.detail || err.message));
     }
-  };
+
+    // Process payment
+    const paymentResponse = await axios.post(
+      "http://127.0.0.1:8000/api/payments/",
+      {
+        amount: totalPrice,
+        payment_date: new Date().toISOString(),
+        payment_status: "completed",
+        booking: bookingId,
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      }
+    );
+
+    if (paymentResponse.status === 201) {
+      alert("Payment successful! Your booking is confirmed.");
+
+      // Update the booking to mark it as paid
+      await axios.patch(
+        `http://127.0.0.1:8000/api/bookings/${bookingId}/`,
+        { payment_status: "paid", total_amount: totalPrice },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+
+      // Redirect to home page after successful payment
+      navigate("/");
+    } else {
+      setError("Failed to process payment.");
+    }
+  } catch (err) {
+    console.error("Error during payment:", err);
+    setError("Payment failed. Error: " + (err.response?.data?.detail || err.message));
+  }
+};
+
 
   useEffect(() => {
     const fetchDetails = async () => {

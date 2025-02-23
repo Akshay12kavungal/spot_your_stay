@@ -10,6 +10,7 @@ class Booking(models.Model):
         ('paid', 'Paid'),
         ('canceled', 'Canceled'),
         ('bookings','Bookings'),
+        ('visited','Visited'),
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="bookings")

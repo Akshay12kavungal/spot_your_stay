@@ -12,6 +12,7 @@ import Profile from './pages/Profile';
 import TrendingSection from './components/Home/TrendingSection';
 import ContactForm from './components/Home/ContactForm';
 import FAQList from './components/Home/FAQList';
+import Bookings from './components/Home/Bookings';
 
 
 function App() {
@@ -29,9 +30,10 @@ function App() {
         <Route path="/single/:id" element={<SingleView />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/gallery" element={<GallerySection />} />
-        <Route path="/" element={<TrendingSection />} />
+        <Route path="/trendingsection" element={<TrendingSection />} />
         <Route path="/contactform" element={<ContactForm />} />
         <Route path="/faq" element={<FAQList />} />
+        <Route path="/bookings" element={<Bookings />} />
 
       </Routes>
     </div>
