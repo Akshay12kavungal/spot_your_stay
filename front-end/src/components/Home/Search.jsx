@@ -88,6 +88,7 @@ const SearchBar = () => {
   const [modalOpen, setModalOpen] = useState(false); // State for modal visibility
   const [modalContent, setModalContent] = useState(""); // State for modal content
   const [showLoginButton, setShowLoginButton] = useState(false); // State to show/hide login button
+  const [blockedDates, setBlockedDates] = useState([]); // State to store blocked dates
 
   // Get today's date in YYYY-MM-DD format
   const getCurrentDate = () => {
@@ -139,12 +140,111 @@ const SearchBar = () => {
     }
   }, [id]);
 
+  // Fetch blocked dates for the property
+  useEffect(() => {
+    const fetchBlockedDates = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/blokeddates/?property=${id}`, {
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (response.status === 200) {
+          setBlockedDates(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching blocked dates:", error.response?.data || error);
+      }
+    };
+
+    if (id) {
+      fetchBlockedDates();
+    }
+  }, [id]);
+
   // Set default check-in and check-out dates
   useEffect(() => {
     const today = getCurrentDate();
     setStartDate(today);
     setEndDate(getNextDayDate(today));
   }, []);
+
+  // Check if the selected date range is blocked
+  const isDateRangeBlocked = (startDate, endDate, blockedDates) => {
+    const selectedStart = new Date(startDate);
+    const selectedEnd = new Date(endDate);
+
+    for (const blockedDate of blockedDates) {
+      const blockedStart = new Date(blockedDate.start_date);
+      const blockedEnd = new Date(blockedDate.end_date);
+
+      if (
+        (selectedStart >= blockedStart && selectedStart < blockedEnd) ||
+        (selectedEnd > blockedStart && selectedEnd <= blockedEnd) ||
+        (selectedStart <= blockedStart && selectedEnd >= blockedEnd)
+      ) {
+        return true; // Overlap found
+      }
+    }
+    return false; // No overlap
+  };
+
+  // Handle booking submission
+  const handleBooking = async () => {
+    try {
+      const user = await fetchUserId();
+      if (!user) {
+        setModalContent("You must be logged in to book this property. Please log in to continue.");
+        setShowLoginButton(true); // Show login button
+        setModalOpen(true); // Open the modal
+        return;
+      }
+
+      // Check if the selected dates are blocked
+      if (isDateRangeBlocked(startDate, endDate, blockedDates)) {
+        setModalContent("The selected dates are blocked. Please choose different dates.");
+        setShowLoginButton(false); // Hide login button
+        setModalOpen(true); // Open the modal
+        return;
+      }
+
+      const existingBookings = await fetchExistingBookings();
+      const isAvailable = isDateRangeAvailable(startDate, endDate, existingBookings);
+
+      if (!isAvailable) {
+        setModalContent("The selected dates are not available. Please choose different dates.");
+        setShowLoginButton(false); // Hide login button
+        setModalOpen(true); // Open the modal
+        return;
+      }
+
+      setDateError(""); // Clear any previous error
+
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/bookings/",
+        {
+          property: id,
+          user: user,
+          check_in: startDate,
+          check_out: endDate,
+          guests,
+          status: "bookings",
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (response.status === 201) {
+        const bookingId = response.data.id; // Extract booking ID from the response
+        navigate(`/checkout?property=${id}&checkin=${startDate}&checkout=${endDate}&guests=${guests}&bookingId=${bookingId}`);
+      } else {
+        alert("Booking failed! Please try again.");
+      }
+    } catch (error) {
+      console.error("Booking Error:", error.response?.data);
+      alert(`Error: ${JSON.stringify(error.response?.data) || "Could not create booking."}`);
+    }
+  };
 
   // Fetch existing bookings for the property
   const fetchExistingBookings = async () => {
@@ -220,55 +320,6 @@ const SearchBar = () => {
     }
   };
 
-  // Handle booking submission
-  const handleBooking = async () => {
-    try {
-      const user = await fetchUserId();
-      if (!user) {
-        setModalContent("You must be logged in to book this property. Please log in to continue.");
-        setShowLoginButton(true); // Show login button
-        setModalOpen(true); // Open the modal
-        return;
-      }
-  
-      const existingBookings = await fetchExistingBookings();
-      const isAvailable = isDateRangeAvailable(startDate, endDate, existingBookings);
-  
-      if (!isAvailable) {
-        setModalContent("The selected dates are not available. Please choose different dates.");
-        setShowLoginButton(false); // Hide login button
-        setModalOpen(true); // Open the modal
-        return;
-      }
-  
-      setDateError(""); // Clear any previous error
-  
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/bookings/",
-        {
-          property: id,
-          user: user,
-          check_in: startDate,
-          check_out: endDate,
-          guests,
-          status: "bookings",
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-  
-      if (response.status === 201) {
-        const bookingId = response.data.id; // Extract booking ID from the response
-        navigate(`/checkout?property=${id}&checkin=${startDate}&checkout=${endDate}&guests=${guests}&bookingId=${bookingId}`);
-      } else {
-        alert("Booking failed! Please try again.");
-      }
-    } catch (error) {
-      console.error("Booking Error:", error.response?.data);
-      alert(`Error: ${JSON.stringify(error.response?.data) || "Could not create booking."}`);
-    }
-  };
   // Redirect to login page
   const handleLoginRedirect = () => {
     navigate("/login"); // Redirect to the login page
