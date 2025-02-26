@@ -14,7 +14,6 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-$$njxsud42x82h_^oed
 DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
 # Allowed Hosts
-# ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='127.0.0.1,localhost').split(',')
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
@@ -24,18 +23,15 @@ ALLOWED_HOSTS = [
     'www.spotyourstay.com'
 ]
 
-
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = config('DJANGO_CORS_ALLOWED_ORIGINS', default='http://localhost:3000').split(',')
 
 # CSRF Trusted Origins
-# CSRF_TRUSTED_ORIGINS = ['https://' + host for host in ALLOWED_HOSTS if host not in ['127.0.0.1', 'localhost']]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://192.168.43.157:3000"
 ]
-
 
 # Application definition
 INSTALLED_APPS = [
@@ -57,6 +53,7 @@ INSTALLED_APPS = [
     'gallery',
     'carousel',
     'about',
+    'collaborations',
 ]
 
 MIDDLEWARE = [
@@ -90,7 +87,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
 # Database configuration
 DATABASES = {
     'default': {
@@ -106,20 +102,6 @@ DATABASES = {
     }
 }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT'),
-#         'OPTIONS': {
-#             'sslmode': os.getenv('DB_SSLMODE', 'require'),
-#         },
-#     }
-# }
-
 # CORS Configuration
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
@@ -128,11 +110,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
-
-
 # JWT Configuration
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=600),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -146,10 +126,9 @@ SIMPLE_JWT = {
 # REST Framework Configuration
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-    'rest_framework_simplejwt.authentication.JWTAuthentication',
-    'rest_framework.authentication.BasicAuthentication',       
-],
-
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
@@ -189,3 +168,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Jazzmin Admin Settings
+JAZZMIN_SETTINGS = {
+    "site_title": "Spot Your Stay Admin",  # Admin panel browser tab title
+    "site_header": "Spot Your Stay",      # Admin panel header
+    "site_brand": "Spot Your Stay",       # Admin panel brand
+    "welcome_sign": "Welcome to Spot Your Stay Administration",  # Welcome message
+    "copyright": "Spot Your Stay",      # Copyright notice
+    "show_ui_builder": True,             # Enable UI builder
+}
+

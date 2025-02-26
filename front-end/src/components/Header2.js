@@ -10,10 +10,11 @@ import Login from '../pages/login';
 import Profile from '../pages/Profile'; // Profile page component
 
 const StyledAppBar = styled(AppBar)(({ transparent }) => ({
-  backgroundColor: '#fff', // Make the background always white
-  color: '#000', // Text color is black
-  boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', // Keep a slight shadow effect
-  borderBottom: '1px solid #e0e0e0', // Border for separation
+  backgroundColor: transparent ? 'transparent' : '#fff',
+  color: transparent ? '#fff' : '#000',
+  boxShadow: transparent ? 'none' : '0px 4px 8px rgba(0, 0, 0, 0.1)',
+  transition: 'background-color 0.3s, color 0.3s, box-shadow 0.3s',
+  borderBottom: transparent ? 'none' : '1px solid #e0e0e0',
 }));
 
 const LuxuryButton = styled(Button)({

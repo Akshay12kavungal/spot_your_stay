@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/payments/', include('payments.urls')),
     path('api/reviews/', include('reviews.urls')),
     path('api/users/', include('users.urls')),
+    path('api/collaborations/', include('collaborations.urls')),
 
     path("api/current_profile/", CurrentUserProfile.as_view(), name="current-user-profile"),
 

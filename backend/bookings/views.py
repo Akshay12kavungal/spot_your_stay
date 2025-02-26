@@ -4,6 +4,8 @@ from .models import Booking
 from .serializers import BookingSerializer
 from django.contrib.auth.models import User
 
+from rest_framework import serializers
+
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
@@ -16,10 +18,15 @@ class BookingViewSet(viewsets.ModelViewSet):
             try:
                 user = User.objects.get(id=user_id)
             except User.DoesNotExist:
-                return Response({"error": "Invalid user ID"}, status=status.HTTP_400_BAD_REQUEST)
+                raise serializers.ValidationError({"user": "Invalid user ID"})
         else:
             user = self.request.user if self.request.user.is_authenticated else User.objects.get(id=1)
 
-        serializer.save(user=user)
+        # Save total_amount explicitly
+        total_amount = self.request.data.get("total_amount", None)
+        if total_amount is not None:
+            serializer.save(user=user, total_amount=total_amount)
+        else:
+            serializer.save(user=user)
 
-    
+        

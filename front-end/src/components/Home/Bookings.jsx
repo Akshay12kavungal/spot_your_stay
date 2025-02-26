@@ -45,11 +45,11 @@ const Bookings = () => {
     const fetchBookings = async () => {
       setLoading(true);
       setError("");
-
+  
       try {
         const username = localStorage.getItem("username");
         if (!username) throw new Error("User not logged in.");
-
+  
         const userResponse = await axios.get(
           `http://127.0.0.1:8000/api/users/profile/${username}/`,
           {
@@ -59,10 +59,10 @@ const Bookings = () => {
             },
           }
         );
-
+  
         const userId = userResponse.data?.user?.id;
         if (!userId) throw new Error("User ID not found in response.");
-
+  
         const bookingsResponse = await axios.get(
           `http://127.0.0.1:8000/api/bookings/?user=${userId}`,
           {
@@ -72,22 +72,34 @@ const Bookings = () => {
             },
           }
         );
-
+  
         if (bookingsResponse.status === 200 && Array.isArray(bookingsResponse.data)) {
-          setBookings(bookingsResponse.data);
+          const bookingsWithProperty = await Promise.all(
+            bookingsResponse.data.map(async (booking) => {
+              const propertyResponse = await axios.get(
+                `http://127.0.0.1:8000/api/properties/${booking.property}/`
+              );
+              return {
+                ...booking,
+                propertyName: propertyResponse.data.name,
+              };
+            })
+          );
+  
+          setBookings(bookingsWithProperty);
         } else {
           setError("No bookings found.");
         }
       } catch (error) {
-        
+        setError(error.message || "An error occurred while fetching bookings.");
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchBookings();
   }, []);
-
+  
   return (
     <div>
       <Header />
@@ -124,7 +136,7 @@ const Bookings = () => {
                 {bookings.length > 0 ? (
                   bookings.map((booking) => (
                     <StyledTableRow key={booking.id}>
-                      <TableCell>{booking.property?.name || "N/A"}</TableCell>
+                      <TableCell>{booking.propertyName}</TableCell>
                       <TableCell>{new Date(booking.check_in).toLocaleDateString()}</TableCell>
                       <TableCell>{new Date(booking.check_out).toLocaleDateString()}</TableCell>
                       <TableCell>{booking.guests}</TableCell>

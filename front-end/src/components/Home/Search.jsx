@@ -71,7 +71,7 @@ const modalStyle = {
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
-  borderRadius: 8,
+  borderRadius: 2,
   textAlign: "center",
 };
 
@@ -87,6 +87,7 @@ const SearchBar = () => {
   const [dateError, setDateError] = useState("");
   const [modalOpen, setModalOpen] = useState(false); // State for modal visibility
   const [modalContent, setModalContent] = useState(""); // State for modal content
+  const [showLoginButton, setShowLoginButton] = useState(false); // State to show/hide login button
 
   // Get today's date in YYYY-MM-DD format
   const getCurrentDate = () => {
@@ -224,7 +225,8 @@ const SearchBar = () => {
     try {
       const user = await fetchUserId();
       if (!user) {
-        setModalContent("User not found. Please log in again.");
+        setModalContent("You must be logged in to book this property. Please log in to continue.");
+        setShowLoginButton(true); // Show login button
         setModalOpen(true); // Open the modal
         return;
       }
@@ -234,6 +236,7 @@ const SearchBar = () => {
 
       if (!isAvailable) {
         setModalContent("The selected dates are not available. Please choose different dates.");
+        setShowLoginButton(false); // Hide login button
         setModalOpen(true); // Open the modal
         return;
       }
@@ -264,6 +267,11 @@ const SearchBar = () => {
       console.error("Booking Error:", error.response?.data);
       alert(`Error: ${JSON.stringify(error.response?.data) || "Could not create booking."}`);
     }
+  };
+
+  // Redirect to login page
+  const handleLoginRedirect = () => {
+    navigate("/login"); // Redirect to the login page
   };
 
   // Show loading spinner while fetching data
@@ -335,7 +343,7 @@ const SearchBar = () => {
       >
         <Box sx={modalStyle}>
           <Typography id="modal-title" variant="h6" component="h2">
-            Error
+            {showLoginButton ? "Login Required" : "Booking Error"}
           </Typography>
           <Typography id="modal-description" sx={{ mt: 2 }}>
             {modalContent}
