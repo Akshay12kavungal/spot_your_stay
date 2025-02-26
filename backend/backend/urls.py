@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+from bookings.views import BlockedDateViewSet
 from users.views import CurrentUserProfile
 
 
@@ -20,8 +21,11 @@ urlpatterns = [
     path('api/reviews/', include('reviews.urls')),
     path('api/users/', include('users.urls')),
     path('api/collaborations/', include('collaborations.urls')),
+    path('api/about/', include('about.urls')),
+
 
     path("api/current_profile/", CurrentUserProfile.as_view(), name="current-user-profile"),
+    path('api/blokeddates/', BlockedDateViewSet.as_view(), name='blockeddates-list'),
 
 
 

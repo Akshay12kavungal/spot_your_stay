@@ -10,21 +10,22 @@ import {
   CircularProgress,
 } from "@mui/material";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import PeopleIcon from "@mui/icons-material/People";
 import HotelIcon from "@mui/icons-material/Hotel";
 import Footer from "../components/Footer";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 const CheckoutPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const propertyId = params.get("property");
   const checkIn = params.get("checkin");
   const checkOut = params.get("checkout");
   const guestsFromUrl = params.get("guests") || "Not specified";
+  const bookingId = params.get("bookingId"); // Retrieve booking ID from URL
 
   const [property, setProperty] = useState(null);
   const [booking, setBooking] = useState(null);
@@ -42,6 +43,7 @@ const CheckoutPage = () => {
     return timeDifference / (1000 * 3600 * 24);
   };
 
+  // Function to calculate total price
   const calculateTotalPrice = () => {
     if (property && checkIn && checkOut) {
       const days = calculateDays(checkIn, checkOut);
@@ -53,33 +55,24 @@ const CheckoutPage = () => {
     return { rentalCharges: 0, gst: 0, totalPrice: 0 };
   };
 
+  // Handle payment
+  const handlePayment = async () => {
+    if (!property || !checkIn || !checkOut) {
+      setError("Please ensure all payment details are filled.");
+      return;
+    }
 
+    const { rentalCharges, gst, totalPrice } = calculateTotalPrice();
 
-// Inside the CheckoutPage component
-const navigate = useNavigate();
-
-const handlePayment = async () => {
-  if (!property || !checkIn || !checkOut) {
-    setError("Please ensure all payment details are filled.");
-    return;
-  }
-
-  const { rentalCharges, gst, totalPrice } = calculateTotalPrice();
-
-  try {
-    let bookingId = booking?.id;
-
-    // If no booking exists, create a new one
-    if (!bookingId) {
-      const bookingResponse = await axios.post(
-        "http://127.0.0.1:8000/api/bookings/",
+    try {
+      // Process payment
+      const paymentResponse = await axios.post(
+        "http://127.0.0.1:8000/api/payments/",
         {
-          property: propertyId,
-          check_in: checkIn,
-          check_out: checkOut,
-          guests: guestsFromUrl,
-          total_amount: totalPrice,
-          status: "Paid",
+          amount: totalPrice,
+          payment_date: new Date().toISOString(),
+          payment_status: "completed",
+          booking: bookingId, // Use booking ID
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -87,64 +80,41 @@ const handlePayment = async () => {
         }
       );
 
-      if (bookingResponse.status === 201) {
-        bookingId = bookingResponse.data.id;
-        setBooking(bookingResponse.data);
+      if (paymentResponse.status === 201) {
+        alert("Payment successful! Your booking is confirmed.");
+
+        // Update the booking to mark it as paid and set the total amount
+        await axios.patch(
+          `http://127.0.0.1:8000/api/bookings/${bookingId}/`,
+          { status: "paid", total_amount: totalPrice },
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        );
+
+        // Redirect to home page after successful payment
+        navigate("/");
       } else {
-        setError("Failed to create a booking.");
-        return;
+        setError("Failed to process payment.");
       }
+    } catch (err) {
+      console.error("Error during payment:", err);
+      setError("Payment failed. Error: " + (err.response?.data?.detail || err.message));
     }
+  };
 
-    // Process payment
-    const paymentResponse = await axios.post(
-      "http://127.0.0.1:8000/api/payments/",
-      {
-        amount: totalPrice,
-        payment_date: new Date().toISOString(),
-        payment_status: "completed",
-        booking: bookingId,
-      },
-      {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      }
-    );
-
-    if (paymentResponse.status === 201) {
-      alert("Payment successful! Your booking is confirmed.");
-
-      // Update the booking to mark it as paid
-      await axios.patch(
-        `http://127.0.0.1:8000/api/bookings/${bookingId}/`,
-        { payment_status: "paid", total_amount: totalPrice },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
-
-      // Redirect to home page after successful payment
-      navigate("/");
-    } else {
-      setError("Failed to process payment.");
-    }
-  } catch (err) {
-    console.error("Error during payment:", err);
-    setError("Payment failed. Error: " + (err.response?.data?.detail || err.message));
-  }
-};
-
-
+  // Fetch property and booking details
   useEffect(() => {
     const fetchDetails = async () => {
-      if (!propertyId) {
-        setError("Invalid property ID");
+      if (!propertyId || !bookingId) {
+        setError("Invalid property or booking ID");
         setLoading(false);
         return;
       }
 
       try {
+        // Fetch property details
         const propertyResponse = await axios.get(
           `http://127.0.0.1:8000/api/properties/${propertyId}/`,
           {
@@ -153,8 +123,9 @@ const handlePayment = async () => {
           }
         );
 
+        // Fetch booking details using booking ID
         const bookingResponse = await axios.get(
-          `http://127.0.0.1:8000/api/bookings/?property=${propertyId}&check_in=${checkIn}&check_out=${checkOut}`,
+          `http://127.0.0.1:8000/api/bookings/${bookingId}/`,
           {
             headers: { "Content-Type": "application/json" },
             withCredentials: true,
@@ -165,10 +136,10 @@ const handlePayment = async () => {
           setProperty(propertyResponse.data);
         }
 
-        if (bookingResponse.status === 200 && bookingResponse.data.length > 0) {
-          setBooking(bookingResponse.data[0]);
+        if (bookingResponse.status === 200) {
+          setBooking(bookingResponse.data);
         } else {
-          setError("No booking found for these dates.");
+          setError("No booking found for the provided ID.");
         }
       } catch (err) {
         console.error("Error fetching details:", err);
@@ -179,8 +150,9 @@ const handlePayment = async () => {
     };
 
     fetchDetails();
-  }, [propertyId, checkIn, checkOut]);
+  }, [propertyId, bookingId]); // Depend on bookingId instead of checkIn and checkOut
 
+  // Show loading spinner while fetching data
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
@@ -189,6 +161,7 @@ const handlePayment = async () => {
     );
   }
 
+  // Show error message if there's an error
   if (error) {
     return (
       <Box textAlign="center" mt={4}>
@@ -204,7 +177,7 @@ const handlePayment = async () => {
 
   return (
     <div>
-      <Header/>
+      <Header />
       <Box sx={{ padding: "24px", maxWidth: "1200px", margin: "0 auto", marginTop: "80px" }}>
         <Grid container spacing={4}>
           <Grid item xs={12} md={8}>
@@ -223,7 +196,7 @@ const handlePayment = async () => {
                       <CalendarTodayIcon fontSize="small" sx={{ marginRight: 1 }} />
                       <Box>
                         <Typography variant="body2" color="textSecondary">Check-In</Typography>
-                        <Typography variant="body1">{checkIn || "--"}</Typography>
+                        <Typography variant="body1">{booking?.check_in || "--"}</Typography>
                       </Box>
                     </Box>
                   </Grid>
@@ -232,7 +205,7 @@ const handlePayment = async () => {
                       <CalendarTodayIcon fontSize="small" sx={{ marginRight: 1 }} />
                       <Box>
                         <Typography variant="body2" color="textSecondary">Check-Out</Typography>
-                        <Typography variant="body1">{checkOut || "--"}</Typography>
+                        <Typography variant="body1">{booking?.check_out || "--"}</Typography>
                       </Box>
                     </Box>
                   </Grid>
@@ -241,7 +214,7 @@ const handlePayment = async () => {
                       <PeopleIcon fontSize="small" sx={{ marginRight: 1 }} />
                       <Box>
                         <Typography variant="body2" color="textSecondary">Guests</Typography>
-                        <Typography variant="body1">{guests} Guests</Typography>
+                        <Typography variant="body1">{booking?.guests || "--"} Guests</Typography>
                       </Box>
                     </Box>
                   </Grid>

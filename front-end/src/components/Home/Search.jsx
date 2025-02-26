@@ -230,19 +230,19 @@ const SearchBar = () => {
         setModalOpen(true); // Open the modal
         return;
       }
-
+  
       const existingBookings = await fetchExistingBookings();
       const isAvailable = isDateRangeAvailable(startDate, endDate, existingBookings);
-
+  
       if (!isAvailable) {
         setModalContent("The selected dates are not available. Please choose different dates.");
         setShowLoginButton(false); // Hide login button
         setModalOpen(true); // Open the modal
         return;
       }
-
+  
       setDateError(""); // Clear any previous error
-
+  
       const response = await axios.post(
         "http://127.0.0.1:8000/api/bookings/",
         {
@@ -257,9 +257,10 @@ const SearchBar = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-
+  
       if (response.status === 201) {
-        navigate(`/checkout?property=${id}&checkin=${startDate}&checkout=${endDate}&guests=${guests}`);
+        const bookingId = response.data.id; // Extract booking ID from the response
+        navigate(`/checkout?property=${id}&checkin=${startDate}&checkout=${endDate}&guests=${guests}&bookingId=${bookingId}`);
       } else {
         alert("Booking failed! Please try again.");
       }
@@ -268,7 +269,6 @@ const SearchBar = () => {
       alert(`Error: ${JSON.stringify(error.response?.data) || "Could not create booking."}`);
     }
   };
-
   // Redirect to login page
   const handleLoginRedirect = () => {
     navigate("/login"); // Redirect to the login page
