@@ -10,8 +10,8 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { useNavigate, useParams } from "react-router-dom";
-
-// Styled components
+import Login from "../../pages/login";
+// Styled components (unchanged)
 const SearchContainer = styled(Box)({
   display: "flex",
   maxWidth: "1200px",
@@ -45,11 +45,11 @@ const SearchButton = styled(Button)({
 });
 
 const LuxuryButton = styled(Button)({
-  backgroundColor: "#000", // Black background
-  color: "#a89160", // Golden text color
+  backgroundColor: "#000",
+  color: "#a89160",
   fontWeight: "bold",
   "&:hover": {
-    backgroundColor: "#333", // Darker black on hover
+    backgroundColor: "#333",
   },
 });
 
@@ -89,6 +89,7 @@ const SearchBar = () => {
   const [modalContent, setModalContent] = useState(""); // State for modal content
   const [showLoginButton, setShowLoginButton] = useState(false); // State to show/hide login button
   const [blockedDates, setBlockedDates] = useState([]); // State to store blocked dates
+  const [showLoginRegister, setShowLoginRegister] = useState(false); // State to show/hide LoginRegister component
 
   // Get today's date in YYYY-MM-DD format
   const getCurrentDate = () => {
@@ -320,9 +321,10 @@ const SearchBar = () => {
     }
   };
 
-  // Redirect to login page
+  // Handle login modal open
   const handleLoginRedirect = () => {
-    navigate("/login"); // Redirect to the login page
+    setShowLoginRegister(true); // Show LoginRegister component
+    setModalOpen(false); // Close the error modal
   };
 
   // Show loading spinner while fetching data
@@ -399,6 +401,15 @@ const SearchBar = () => {
           <Typography id="modal-description" sx={{ mt: 2 }}>
             {modalContent}
           </Typography>
+          {showLoginButton && (
+            <LuxuryButton
+              variant="contained"
+              onClick={handleLoginRedirect} // Open login modal
+              sx={{ mt: 3, mr: 2 }}
+            >
+              Login
+            </LuxuryButton>
+          )}
           <LuxuryButton
             variant="contained"
             onClick={() => setModalOpen(false)}
@@ -406,6 +417,16 @@ const SearchBar = () => {
           >
             Close
           </LuxuryButton>
+        </Box>
+      </Modal>
+
+      {/* LoginRegister Modal */}
+      <Modal
+        open={showLoginRegister}
+        onClose={() => setShowLoginRegister(false)}
+      >
+        <Box>
+          <Login />
         </Box>
       </Modal>
 

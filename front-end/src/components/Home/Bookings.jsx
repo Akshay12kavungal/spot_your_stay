@@ -45,11 +45,11 @@ const Bookings = () => {
     const fetchBookings = async () => {
       setLoading(true);
       setError("");
-  
+
       try {
         const username = localStorage.getItem("username");
         if (!username) throw new Error("User not logged in.");
-  
+
         const userResponse = await axios.get(
           `http://127.0.0.1:8000/api/users/profile/${username}/`,
           {
@@ -59,10 +59,10 @@ const Bookings = () => {
             },
           }
         );
-  
+
         const userId = userResponse.data?.user?.id;
         if (!userId) throw new Error("User ID not found in response.");
-  
+
         const bookingsResponse = await axios.get(
           `http://127.0.0.1:8000/api/bookings/?user=${userId}`,
           {
@@ -72,7 +72,7 @@ const Bookings = () => {
             },
           }
         );
-  
+
         if (bookingsResponse.status === 200 && Array.isArray(bookingsResponse.data)) {
           const bookingsWithProperty = await Promise.all(
             bookingsResponse.data.map(async (booking) => {
@@ -85,7 +85,7 @@ const Bookings = () => {
               };
             })
           );
-  
+
           setBookings(bookingsWithProperty);
         } else {
           setError("No bookings found.");
@@ -96,16 +96,42 @@ const Bookings = () => {
         setLoading(false);
       }
     };
-  
+
     fetchBookings();
   }, []);
-  
+
+  const handleCancel = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+
+    try {
+      const response = await axios.patch(
+        `http://127.0.0.1:8000/api/bookings/${bookingId}/cancel/`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setBookings((prevBookings) =>
+          prevBookings.map((booking) =>
+            booking.id === bookingId ? { ...booking, status: "Cancelled" } : booking
+          )
+        );
+      }
+    } catch (error) {
+      alert("Failed to cancel booking. Please try again.");
+    }
+  };
+
   return (
     <div>
       <Header />
 
       <Box sx={{ padding: 4, textAlign: "center", maxWidth: "1100px", margin: "auto", mt: 10 }}>
-        
         <Typography variant="h5" color="textSecondary" paragraph>
           View and manage your upcoming and past bookings.
         </Typography>
@@ -130,6 +156,7 @@ const Bookings = () => {
                   <StyledTableCell>Check-out</StyledTableCell>
                   <StyledTableCell>Guests</StyledTableCell>
                   <StyledTableCell>Status</StyledTableCell>
+                  <StyledTableCell>Action</StyledTableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -141,11 +168,23 @@ const Bookings = () => {
                       <TableCell>{new Date(booking.check_out).toLocaleDateString()}</TableCell>
                       <TableCell>{booking.guests}</TableCell>
                       <TableCell>{booking.status}</TableCell>
+                      <TableCell>
+                        {booking.status !== "Cancelled" && (
+                          <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => handleCancel(booking.id)}
+                            sx={{ fontSize: "12px", padding: "6px 12px", borderRadius: "6px" }}
+                          >
+                            Cancel
+                          </Button>
+                        )}
+                      </TableCell>
                     </StyledTableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ padding: "20px", color: "#777" }}>
+                    <TableCell colSpan={6} align="center" sx={{ padding: "20px", color: "#777" }}>
                       No bookings found.
                     </TableCell>
                   </TableRow>
@@ -156,22 +195,7 @@ const Bookings = () => {
         )}
 
         <Box sx={{ marginTop: 4 }}>
-          {/* Updated Button Style */}
-          <Button
-            variant="contained"
-            href="/profile"
-            sx={{
-              backgroundColor: "#000", // Black background
-              color: "#a89160", // Golden text color
-              fontWeight: "bold",
-              padding: "12px 24px",
-              fontSize: "10px",
-              borderRadius: "8px",
-              "&:hover": {
-                backgroundColor: "#333", // Darker black on hover
-              },
-            }}
-          >
+          <Button variant="contained" href="/profile" sx={{ backgroundColor: "#000", color: "#a89160" }}>
             Go to Profile
           </Button>
         </Box>
