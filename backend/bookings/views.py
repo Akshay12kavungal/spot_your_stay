@@ -5,10 +5,8 @@ from .serializers import BlockedDatesSerializer, BookingSerializer
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.decorators import action
-from rest_framework.response import Response
-
-
 from rest_framework import serializers
+
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
@@ -40,7 +38,17 @@ class BookingViewSet(viewsets.ModelViewSet):
         except Booking.DoesNotExist:
             return Response({"error": "Booking not found."}, status=404)
 
-        
+    def partial_update(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Booking.DoesNotExist:
+            return Response({"error": "Booking not found."}, status=status.HTTP_404_NOT_FOUND)
+        except serializers.ValidationError as e:
+            return Response({"error": e.detail}, status=status.HTTP_400_BAD_REQUEST)
 class BlockedDateViewSet(APIView):
     permission_classes = [permissions.AllowAny]  # Adjust permissions as needed
 

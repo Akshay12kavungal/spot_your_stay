@@ -4,7 +4,12 @@ from bookings.models import BlockedDate, Booking
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
-        fields = ['id', 'user', 'property', 'check_in', 'check_out','guests', 'total_amount', 'status']
+        fields = "__all__"
+        extra_kwargs = {
+            "advance_amount": {"required": False},
+            "total_amount": {"required": False},
+        }
+
 class BlockedDatesSerializer(serializers.ModelSerializer):
     class Meta:
         model = BlockedDate

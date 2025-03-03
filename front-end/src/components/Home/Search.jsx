@@ -148,7 +148,7 @@ const SearchBar = () => {
         const response = await axios.get(`http://127.0.0.1:8000/api/blokeddates/?property=${id}`, {
           headers: { "Content-Type": "application/json" },
         });
-
+    
         if (response.status === 200) {
           setBlockedDates(response.data);
         }
@@ -170,25 +170,27 @@ const SearchBar = () => {
   }, []);
 
   // Check if the selected date range is blocked
-  const isDateRangeBlocked = (startDate, endDate, blockedDates) => {
+  const isDateRangeBlocked = (startDate, endDate, blockedDates, propertyId) => {
     const selectedStart = new Date(startDate);
     const selectedEnd = new Date(endDate);
-
+  
     for (const blockedDate of blockedDates) {
-      const blockedStart = new Date(blockedDate.start_date);
-      const blockedEnd = new Date(blockedDate.end_date);
-
-      if (
-        (selectedStart >= blockedStart && selectedStart < blockedEnd) ||
-        (selectedEnd > blockedStart && selectedEnd <= blockedEnd) ||
-        (selectedStart <= blockedStart && selectedEnd >= blockedEnd)
-      ) {
-        return true; // Overlap found
+      // Check if the blocked date belongs to the same property
+      if (blockedDate.property === propertyId) {
+        const blockedStart = new Date(blockedDate.start_date);
+        const blockedEnd = new Date(blockedDate.end_date);
+  
+        if (
+          (selectedStart >= blockedStart && selectedStart < blockedEnd) ||
+          (selectedEnd > blockedStart && selectedEnd <= blockedEnd) ||
+          (selectedStart <= blockedStart && selectedEnd >= blockedEnd)
+        ) {
+          return true; // Overlap found for this property
+        }
       }
     }
-    return false; // No overlap
+    return false; // No overlap for this property
   };
-
   // Handle booking submission
   const handleBooking = async () => {
     try {
@@ -199,27 +201,27 @@ const SearchBar = () => {
         setModalOpen(true); // Open the modal
         return;
       }
-
-      // Check if the selected dates are blocked
-      if (isDateRangeBlocked(startDate, endDate, blockedDates)) {
+  
+      // Check if the selected dates are blocked for this property
+      if (isDateRangeBlocked(startDate, endDate, blockedDates, id)) {
         setModalContent("The selected dates are blocked. Please choose different dates.");
         setShowLoginButton(false); // Hide login button
         setModalOpen(true); // Open the modal
         return;
       }
-
+  
       const existingBookings = await fetchExistingBookings();
-      const isAvailable = isDateRangeAvailable(startDate, endDate, existingBookings);
-
+      const isAvailable = isDateRangeAvailable(startDate, endDate, existingBookings, id);
+  
       if (!isAvailable) {
         setModalContent("The selected dates are not available. Please choose different dates.");
         setShowLoginButton(false); // Hide login button
         setModalOpen(true); // Open the modal
         return;
       }
-
+  
       setDateError(""); // Clear any previous error
-
+  
       const response = await axios.post(
         "http://127.0.0.1:8000/api/bookings/",
         {
@@ -228,13 +230,13 @@ const SearchBar = () => {
           check_in: startDate,
           check_out: endDate,
           guests,
-          status: "bookings",
+          status: "pending",
         },
         {
           headers: { "Content-Type": "application/json" },
         }
       );
-
+  
       if (response.status === 201) {
         const bookingId = response.data.id; // Extract booking ID from the response
         navigate(`/checkout?property=${id}&checkin=${startDate}&checkout=${endDate}&guests=${guests}&bookingId=${bookingId}`);
@@ -246,14 +248,13 @@ const SearchBar = () => {
       alert(`Error: ${JSON.stringify(error.response?.data) || "Could not create booking."}`);
     }
   };
-
   // Fetch existing bookings for the property
   const fetchExistingBookings = async () => {
     try {
       const response = await axios.get(`http://127.0.0.1:8000/api/bookings/?property=${id}`, {
         headers: { "Content-Type": "application/json" },
       });
-
+  
       if (response.status === 200) {
         return response.data;
       }
@@ -264,23 +265,26 @@ const SearchBar = () => {
   };
 
   // Check if the selected date range is available
-  const isDateRangeAvailable = (startDate, endDate, existingBookings) => {
+  const isDateRangeAvailable = (startDate, endDate, existingBookings, propertyId) => {
     const selectedStart = new Date(startDate);
     const selectedEnd = new Date(endDate);
-
+  
     for (const booking of existingBookings) {
-      const bookingStart = new Date(booking.check_in);
-      const bookingEnd = new Date(booking.check_out);
-
-      if (
-        (selectedStart >= bookingStart && selectedStart < bookingEnd) ||
-        (selectedEnd > bookingStart && selectedEnd <= bookingEnd) ||
-        (selectedStart <= bookingStart && selectedEnd >= bookingEnd)
-      ) {
-        return false; // Overlap found
+      // Check if the booking belongs to the same property
+      if (booking.property === propertyId) {
+        const bookingStart = new Date(booking.check_in);
+        const bookingEnd = new Date(booking.check_out);
+  
+        if (
+          (selectedStart >= bookingStart && selectedStart < bookingEnd) ||
+          (selectedEnd > bookingStart && selectedEnd <= bookingEnd) ||
+          (selectedStart <= bookingStart && selectedEnd >= bookingEnd)
+        ) {
+          return false; // Overlap found for this property
+        }
       }
     }
-    return true; // No overlap
+    return true; // No overlap for this property
   };
 
   // Fetch user ID from the backend

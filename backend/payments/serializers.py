@@ -6,7 +6,7 @@ from .models import Payment
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ['booking', 'amount', 'payment_status']
+        fields = "__all__"
 
     # If you're sending just the ID of the booking instead of a full object
     booking = serializers.PrimaryKeyRelatedField(queryset=Booking.objects.all())

@@ -50,9 +50,10 @@ const CheckoutPage = () => {
       const rentalCharges = property.price ? property.price * days : 0;
       const gst = rentalCharges * 0.18;
       const totalPrice = rentalCharges + gst;
-      return { rentalCharges, gst, totalPrice };
+      const advanceAmount = property.advance_amount || 0; // Use advance_amount from property
+      return { rentalCharges, gst, totalPrice, advanceAmount };
     }
-    return { rentalCharges: 0, gst: 0, totalPrice: 0 };
+    return { rentalCharges: 0, gst: 0, totalPrice: 0, advanceAmount: 0 };
   };
 
   // Handle payment
@@ -61,39 +62,52 @@ const CheckoutPage = () => {
       setError("Please ensure all payment details are filled.");
       return;
     }
-
-    const { rentalCharges, gst, totalPrice } = calculateTotalPrice();
-
+  
+    const { totalPrice, advanceAmount } = calculateTotalPrice();
+  
     try {
-      // Process payment
+      // Step 1: Process payment
       const paymentResponse = await axios.post(
         "http://127.0.0.1:8000/api/payments/",
         {
           amount: totalPrice,
+          advance_amount: advanceAmount,
           payment_date: new Date().toISOString(),
           payment_status: "completed",
-          booking: bookingId, // Use booking ID
+          booking: bookingId,
         },
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
       );
-
+  
       if (paymentResponse.status === 201) {
-        alert("Payment successful! Your booking is confirmed.");
-
-        // Update the booking to mark it as paid and set the total amount
-        await axios.patch(
+        alert("Advance payment successful! Your booking is confirmed.");
+  
+        // Step 2: Update the booking
+        const bookingUpdateResponse = await axios.patch(
           `http://127.0.0.1:8000/api/bookings/${bookingId}/`,
-          { status: "paid", total_amount: totalPrice },
+          { 
+            status: "confirmed", 
+            advance_amount: advanceAmount, 
+            total_amount: totalPrice 
+          },
           {
             headers: { "Content-Type": "application/json" },
             withCredentials: true,
           }
         );
-
-        // Redirect to home page after successful payment
+  
+        console.log("Booking Update Response:", bookingUpdateResponse);
+  
+        if (bookingUpdateResponse.status === 200) {
+          console.log("Booking updated successfully:", bookingUpdateResponse.data);
+        } else {
+          console.error("Failed to update booking. Response:", bookingUpdateResponse);
+          setError("Booking update failed.");
+        }
+  
         navigate("/");
       } else {
         setError("Failed to process payment.");
@@ -103,7 +117,8 @@ const CheckoutPage = () => {
       setError("Payment failed. Error: " + (err.response?.data?.detail || err.message));
     }
   };
-
+  
+  
   // Fetch property and booking details
   useEffect(() => {
     const fetchDetails = async () => {
@@ -172,7 +187,7 @@ const CheckoutPage = () => {
     );
   }
 
-  const { rentalCharges, gst, totalPrice } = calculateTotalPrice();
+  const { rentalCharges, gst, totalPrice, advanceAmount } = calculateTotalPrice();
   const guests = guestsFromUrl;
 
   return (
@@ -248,6 +263,10 @@ const CheckoutPage = () => {
                   <Typography variant="body1">₹{gst.toLocaleString()}</Typography>
                 </Box>
                 <Divider sx={{ marginY: 2 }} />
+                <Box display="flex" justifyContent="space-between" marginBottom={2}>
+                  <Typography variant="body1">Advance Payment</Typography>
+                  <Typography variant="body1">₹{advanceAmount.toLocaleString()}</Typography>
+                </Box>
                 <Box display="flex" justifyContent="space-between" marginBottom={2}>
                   <Typography variant="h6" fontWeight="bold">Total Payable</Typography>
                   <Typography variant="h6" fontWeight="bold">₹{totalPrice.toLocaleString()}</Typography>
