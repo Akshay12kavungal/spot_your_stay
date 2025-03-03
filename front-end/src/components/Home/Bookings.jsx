@@ -155,6 +155,9 @@ const Bookings = () => {
                   <StyledTableCell>Check-in</StyledTableCell>
                   <StyledTableCell>Check-out</StyledTableCell>
                   <StyledTableCell>Guests</StyledTableCell>
+                  <StyledTableCell>Total Price</StyledTableCell>
+                  <StyledTableCell>Advance</StyledTableCell>
+                  <StyledTableCell>Balance Amount</StyledTableCell>
                   <StyledTableCell>Status</StyledTableCell>
                   <StyledTableCell>Action</StyledTableCell>
                 </TableRow>
@@ -167,6 +170,9 @@ const Bookings = () => {
                       <TableCell>{new Date(booking.check_in).toLocaleDateString()}</TableCell>
                       <TableCell>{new Date(booking.check_out).toLocaleDateString()}</TableCell>
                       <TableCell>{booking.guests}</TableCell>
+                      <TableCell>{booking.total_amount}</TableCell>
+                      <TableCell>{booking.advance_amount}</TableCell>
+                      <TableCell>{booking.balance_amount}</TableCell>
                       <TableCell>{booking.status}</TableCell>
                       <TableCell>
                         {booking.status !== "Cancelled" && (

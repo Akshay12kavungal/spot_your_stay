@@ -44,17 +44,23 @@ const CheckoutPage = () => {
   };
 
   // Function to calculate total price
+  // Function to calculate total price with dynamic advance amount
   const calculateTotalPrice = () => {
     if (property && checkIn && checkOut) {
       const days = calculateDays(checkIn, checkOut);
       const rentalCharges = property.price ? property.price * days : 0;
       const gst = rentalCharges * 0.18;
       const totalPrice = rentalCharges + gst;
-      const advanceAmount = property.advance_amount || 0; // Use advance_amount from property
+  
+      // Advance amount: ₹5000 per day
+      const advanceAmount = 5000 * days;
+  
       return { rentalCharges, gst, totalPrice, advanceAmount };
     }
     return { rentalCharges: 0, gst: 0, totalPrice: 0, advanceAmount: 0 };
   };
+  
+
 
   // Handle payment
   const handlePayment = async () => {

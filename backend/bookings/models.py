@@ -20,11 +20,20 @@ class Booking(models.Model):
     check_out = models.DateField()
     guests = models.PositiveIntegerField()
     advance_amount=models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+    balance_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
 
     def __str__(self):
         return f'Booking {self.id} for {self.property.name} by {self.user.username}'
+    
+    def save(self, *args, **kwargs):
+        if self.total_amount is not None and self.advance_amount is not None:
+            self.balance_amount = self.total_amount - self.advance_amount
+        else:
+            self.balance_amount = None
+        super().save(*args, **kwargs)
+
 
 
 
