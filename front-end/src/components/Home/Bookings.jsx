@@ -13,6 +13,11 @@ import {
   Typography,
   Alert,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import Header from "../Header2";
@@ -40,6 +45,8 @@ const Bookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [openCancelDialog, setOpenCancelDialog] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState(null);
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -100,12 +107,17 @@ const Bookings = () => {
     fetchBookings();
   }, []);
 
-  const handleCancel = async (bookingId) => {
-    if (!window.confirm("Are you sure you want to cancel this booking?")) return;
+  const handleCancelClick = (bookingId) => {
+    setSelectedBookingId(bookingId);
+    setOpenCancelDialog(true);
+  };
+
+  const handleCancelConfirm = async () => {
+    if (!selectedBookingId) return;
 
     try {
       const response = await axios.patch(
-        `http://127.0.0.1:8000/api/bookings/${bookingId}/cancel/`,
+        `http://127.0.0.1:8000/api/bookings/${selectedBookingId}/cancel/`,
         {},
         {
           headers: {
@@ -118,13 +130,21 @@ const Bookings = () => {
       if (response.status === 200) {
         setBookings((prevBookings) =>
           prevBookings.map((booking) =>
-            booking.id === bookingId ? { ...booking, status: "Cancelled" } : booking
+            booking.id === selectedBookingId ? { ...booking, status: "Cancelled" } : booking
           )
         );
       }
     } catch (error) {
       alert("Failed to cancel booking. Please try again.");
+    } finally {
+      setOpenCancelDialog(false);
+      setSelectedBookingId(null);
     }
+  };
+
+  const handleCancelClose = () => {
+    setOpenCancelDialog(false);
+    setSelectedBookingId(null);
   };
 
   return (
@@ -179,7 +199,7 @@ const Bookings = () => {
                           <Button
                             variant="contained"
                             color="error"
-                            onClick={() => handleCancel(booking.id)}
+                            onClick={() => handleCancelClick(booking.id)}
                             sx={{ fontSize: "12px", padding: "6px 12px", borderRadius: "6px" }}
                           >
                             Cancel
@@ -207,6 +227,105 @@ const Bookings = () => {
         </Box>
       </Box>
 
+      {/* Cancellation Policy Dialog */}
+      <Dialog
+        open={openCancelDialog}
+        onClose={handleCancelClose}
+        PaperProps={{
+          sx: {
+            borderRadius: "12px",
+            padding: "16px",
+            maxWidth: "500px",
+            width: "100%",
+            boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            fontSize: "1.5rem",
+            fontWeight: "bold",
+            color: "#333",
+            textAlign: "center",
+            padding: "16px 0",
+            borderBottom: "1px solid #e0e0e0",
+          }}
+        >
+          Cancellation Policy
+        </DialogTitle>
+        <DialogContent sx={{ padding: "24px 16px" }}>
+          <Typography variant="body1" gutterBottom sx={{ color: "#555", lineHeight: "1.6" }}>
+            Kindly note our cancellation policy:
+          </Typography>
+          <Box
+            component="ul"
+            sx={{
+              marginLeft: "24px",
+              color: "#555",
+              "& li": {
+                marginBottom: "8px",
+              },
+            }}
+          >
+            <li>
+              Please inform us of any cancellations <strong>at least 7 days prior</strong> to your booking date.
+            </li>
+            <li>
+              <strong>No refunds</strong> will be issued for cancellations made within 7 days of the booking date.
+            </li>
+          </Box>
+          <Typography
+            variant="body1"
+            sx={{
+              fontStyle: "italic",
+              marginTop: "16px",
+              color: "#555",
+              textAlign: "center",
+            }}
+          >
+            Your cooperation is appreciated. Thank you!
+          </Typography>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            justifyContent: "center",
+            padding: "16px",
+            borderTop: "1px solid #e0e0e0",
+          }}
+        >
+          <Button
+            onClick={handleCancelClose}
+            variant="outlined"
+            sx={{
+              color: "#333",
+              borderColor: "#333",
+              borderRadius: "8px",
+              padding: "8px 24px",
+              "&:hover": {
+                backgroundColor: "#f5f5f5",
+                borderColor: "#333",
+              },
+            }}
+          >
+            No, Go Back
+          </Button>
+          <Button
+            onClick={handleCancelConfirm}
+            variant="contained"
+            color="error"
+            sx={{
+              borderRadius: "8px",
+              padding: "8px 24px",
+              backgroundColor: "#d32f2f",
+              "&:hover": {
+                backgroundColor: "#b71c1c",
+              },
+            }}
+          >
+            Yes, Cancel Booking
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Footer />
     </div>
   );

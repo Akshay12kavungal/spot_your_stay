@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, InputAdornment } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import SearchIcon from '@mui/icons-material/Search';
 import axios from 'axios';
 
 const VideoBackground = styled('video')({
@@ -30,43 +29,6 @@ const Overlay = styled(Box)({
   overflow: 'hidden',
 });
 
-const StyledSearchField = styled(TextField)({
-  backgroundColor: '#fff',
-  borderRadius: '30px',
-  width: '80%',
-  maxWidth: '500px',
-  marginTop: '20px',
-  '& .MuiOutlinedInput-root': {
-    borderRadius: '30px',
-  },
-  '@media (max-width: 600px)': {
-    width: '90%', // Adjust width for smaller screens
-    maxWidth: '90%', // Ensure it doesn’t exceed screen width
-  },
-  '@media (min-width: 601px) and (max-width: 960px)': {
-    width: '85%', // Adjust for medium-sized screens
-  },
-  '@media (min-width: 961px)': {
-    width: '80%', // Default for larger screens
-  },
-});
-
-
-const StatsBox = styled(Box)({
-  display: 'flex',
-  justifyContent: 'center',
-  gap: '30px',
-  marginTop: '40px',
-  textAlign: 'center',
-  color: '#fff',
-  zIndex: 1,
-});
-
-const Stat = styled(Box)({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-});
 
 
 const VideoSection = () => {
@@ -144,19 +106,9 @@ const VideoSection = () => {
           Spot Your Stay is a platform for explorers to come together by signing up for exciting experiential stays in stunning properties or touring destinations.
         </Typography>
 
-        <StyledSearchField
-          placeholder="Search Experiences"
-          variant="outlined"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
+        
 
-        <StatsBox>
+        {/* <StatsBox>
           <Stat>
             <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
               07+
@@ -175,7 +127,7 @@ const VideoSection = () => {
             </Typography>
             <Typography variant="body2">Guests</Typography>
           </Stat>
-        </StatsBox>
+        </StatsBox> */}
       </Overlay>
     </Box>
   );

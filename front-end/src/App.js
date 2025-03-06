@@ -13,6 +13,7 @@ import TrendingSection from './components/Home/TrendingSection';
 import ContactForm from './components/Home/ContactForm';
 import FAQList from './components/Home/FAQList';
 import Bookings from './components/Home/Bookings';
+import ListProperty from './components/Home/ListProperty';
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
         <Route path="/contactform" element={<ContactForm />} />
         <Route path="/faq" element={<FAQList />} />
         <Route path="/bookings" element={<Bookings />} />
+        <Route path="/listproperty" element={<ListProperty />} />
 
       </Routes>
     </div>
