@@ -37,7 +37,7 @@ const Title = styled.h1`
 const Youtube = () => {
   return (
     <Box sx={{ padding: 4, textAlign: 'center' }}>
-       <Title>Explore Our Resort Through Videos</Title>
+       <Title>Explore Our Spot Through Videos</Title>
       <Grid container spacing={3} justifyContent="center">
         {videos.map((video, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>

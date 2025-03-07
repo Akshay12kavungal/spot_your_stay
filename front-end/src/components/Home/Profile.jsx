@@ -11,6 +11,9 @@ import {
   Link,
   Modal,
   IconButton,
+  useMediaQuery,
+  Grid,
+  Stack,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -21,6 +24,9 @@ const ProfileModal = ({ open, onClose }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showProfileEdit, setShowProfileEdit] = useState(false);
+
+  const isMobile = useMediaQuery("(max-width:600px)"); // Detect mobile screens
+  const isTablet = useMediaQuery("(max-width:960px)"); // Detect tablet screens
 
   // Fetch user data from the API
   useEffect(() => {
@@ -100,36 +106,42 @@ const ProfileModal = ({ open, onClose }) => {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
-          padding: 2,
+          padding: isMobile ? 2 : 4,
         }}
       >
         <Card
           sx={{
             display: "flex",
+            flexDirection: isMobile ? "column" : "row",
             width: "100%",
-            maxWidth: 900,
-            height: "500px",
+            maxWidth: isMobile ? "100%" : 900,
+            height: isMobile ? "auto" : 500,
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
             borderRadius: 2,
             backgroundColor: "#f5f5f5",
           }}
         >
-          <Box
-            sx={{
-              flex: 1,
-              backgroundImage: `url('http://localhost:8000/media/property_images/profile.jpeg')`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              borderRadius: "8px 0 0 8px",
-            }}
-          />
+          {/* Image Section */}
+          {!isMobile && (
+            <Box
+              sx={{
+                flex: 1,
+                backgroundImage: `url('http://localhost:8000/media/property_images/login.jpeg')`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                borderRadius: isMobile ? "8px 8px 0 0" : "8px 0 0 8px",
+              }}
+            />
+          )}
+
+          {/* Form Section */}
           <CardContent
             sx={{
               flex: 1,
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
-              padding: 4,
+              padding: isMobile ? 2 : 4,
               position: "relative",
             }}
           >
@@ -139,7 +151,7 @@ const ProfileModal = ({ open, onClose }) => {
             >
               <CloseIcon />
             </IconButton>
-            <Typography variant="h4" gutterBottom textAlign="center">
+            <Typography variant="h4" gutterBottom textAlign="center" fontSize={isMobile ? "1.8rem" : "2.125rem"}>
               {showProfileEdit ? "Edit Profile" : "My Profile"}
             </Typography>
             <Typography
@@ -161,7 +173,7 @@ const ProfileModal = ({ open, onClose }) => {
 
             {showProfileEdit ? (
               <form onSubmit={handleSubmitUpdate}>
-                <Box marginBottom={2}>
+                <Stack spacing={2}>
                   <TextField
                     fullWidth
                     label="Username"
@@ -171,8 +183,6 @@ const ProfileModal = ({ open, onClose }) => {
                     variant="outlined"
                     placeholder="Enter your username"
                   />
-                </Box>
-                <Box marginBottom={2}>
                   <TextField
                     fullWidth
                     label="Email"
@@ -183,8 +193,6 @@ const ProfileModal = ({ open, onClose }) => {
                     variant="outlined"
                     placeholder="Enter your email address"
                   />
-                </Box>
-                <Box marginBottom={2}>
                   <TextField
                     fullWidth
                     label="Password"
@@ -194,8 +202,6 @@ const ProfileModal = ({ open, onClose }) => {
                     variant="outlined"
                     placeholder="Enter your new password"
                   />
-                </Box>
-                <Box marginBottom={2}>
                   <TextField
                     fullWidth
                     label="Confirm Password"
@@ -205,20 +211,20 @@ const ProfileModal = ({ open, onClose }) => {
                     variant="outlined"
                     placeholder="Confirm your new password"
                   />
-                </Box>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  sx={{
-                    textTransform: "none",
-                    padding: "10px",
-                    fontSize: "16px",
-                  }}
-                >
-                  Update Profile
-                </Button>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    sx={{
+                      textTransform: "none",
+                      padding: "10px",
+                      fontSize: "16px",
+                    }}
+                  >
+                    Update Profile
+                  </Button>
+                </Stack>
               </form>
             ) : (
               <Box>

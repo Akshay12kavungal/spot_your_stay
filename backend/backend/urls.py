@@ -26,6 +26,7 @@ urlpatterns = [
 
     path("api/current_profile/", CurrentUserProfile.as_view(), name="current-user-profile"),
     path('api/blockeddates/', BlockedDateViewSet.as_view(), name='blockeddates-list'),
+    
 
 
 

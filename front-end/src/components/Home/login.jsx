@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
-import { Box, Card, CardContent, TextField, Typography, Alert, Link, Modal, IconButton } from "@mui/material";
+import { Box, Card, CardContent, TextField, Typography, Alert, Link, Modal, IconButton, useMediaQuery } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
 const LuxuryButton = styled("button")({
@@ -30,6 +30,8 @@ const LoginRegisterModal = ({ open, onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
 
   const navigate = useNavigate();
+  const isMobile = useMediaQuery("(max-width:600px)"); // Detect mobile screens
+  const isTablet = useMediaQuery("(max-width:960px)"); // Detect tablet screens
 
   // Utility function to check if the token has expired
   const isTokenExpired = () => {
@@ -137,14 +139,36 @@ const LoginRegisterModal = ({ open, onClose }) => {
 
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="login-register-modal" aria-describedby="login-register-modal-description">
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <Card sx={{ display: "flex", width: "100%", maxWidth: 900, height: "500px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", borderRadius: 2 }}>
-          <Box sx={{ flex: 1, backgroundImage: `url('http://localhost:8000/media/property_images/login.jpeg')`, backgroundSize: "cover", backgroundPosition: "center", borderRadius: "8px 0 0 8px" }} />
-          <CardContent sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: 4, position: "relative" }}>
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", padding: isMobile ? 2 : 4 }}>
+        <Card sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", width: "100%", maxWidth: isMobile ? "100%" : 900, height: isMobile ? "auto" : 500, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", borderRadius: 2 }}>
+          {/* Image Section */}
+          {!isMobile && (
+            <Box
+              sx={{
+                flex: 1,
+                backgroundImage: `url('http://localhost:8000/media/property_images/login.jpeg')`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                borderRadius: isMobile ? "8px 8px 0 0" : "8px 0 0 8px",
+              }}
+            />
+          )}
+
+          {/* Form Section */}
+          <CardContent
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              padding: isMobile ? 2 : 4,
+              position: "relative",
+            }}
+          >
             <IconButton sx={{ position: "absolute", top: 8, right: 8 }} onClick={onClose}>
               <CloseIcon />
             </IconButton>
-            <Typography variant="h4" gutterBottom textAlign="center">
+            <Typography variant="h4" gutterBottom textAlign="center" fontSize={isMobile ? "1.8rem" : "2.125rem"}>
               {isLogin ? "Welcome Back" : "Create an Account"}
             </Typography>
             <Typography variant="body2" color="textSecondary" textAlign="center" marginBottom={3}>
