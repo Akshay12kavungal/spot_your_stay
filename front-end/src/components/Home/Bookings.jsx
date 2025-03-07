@@ -18,6 +18,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { styled } from "@mui/system";
 import Header from "../Header2";
@@ -47,6 +49,9 @@ const Bookings = () => {
   const [error, setError] = useState("");
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState(null);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -151,7 +156,7 @@ const Bookings = () => {
     <div>
       <Header />
 
-      <Box sx={{ padding: 4, textAlign: "center", maxWidth: "1100px", margin: "auto", mt: 10 }}>
+      <Box sx={{ padding: isMobile ? 2 : 4, textAlign: "center", maxWidth: "1100px", margin: "auto", mt: 10 }}>
         <Typography variant="h5" color="textSecondary" paragraph>
           View and manage your upcoming and past bookings.
         </Typography>
@@ -167,7 +172,7 @@ const Bookings = () => {
             <CircularProgress color="primary" />
           </Box>
         ) : (
-          <TableContainer component={Paper} sx={{ marginTop: 3, boxShadow: 3, borderRadius: 2 }}>
+          <TableContainer component={Paper} sx={{ marginTop: 3, boxShadow: 3, borderRadius: 2, overflowX: "auto" }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -200,7 +205,7 @@ const Bookings = () => {
                             variant="contained"
                             color="error"
                             onClick={() => handleCancelClick(booking.id)}
-                            sx={{ fontSize: "12px", padding: "6px 12px", borderRadius: "6px" }}
+                            sx={{ fontSize: isMobile ? "10px" : "12px", padding: isMobile ? "4px 8px" : "6px 12px", borderRadius: "6px" }}
                           >
                             Cancel
                           </Button>
@@ -210,7 +215,7 @@ const Bookings = () => {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} align="center" sx={{ padding: "20px", color: "#777" }}>
+                    <TableCell colSpan={9} align="center" sx={{ padding: "20px", color: "#777" }}>
                       No bookings found.
                     </TableCell>
                   </TableRow>
@@ -234,8 +239,8 @@ const Bookings = () => {
         PaperProps={{
           sx: {
             borderRadius: "12px",
-            padding: "16px",
-            maxWidth: "500px",
+            padding: isMobile ? "8px" : "16px",
+            maxWidth: isMobile ? "90%" : "500px",
             width: "100%",
             boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
           },
@@ -243,7 +248,7 @@ const Bookings = () => {
       >
         <DialogTitle
           sx={{
-            fontSize: "1.5rem",
+            fontSize: isMobile ? "1.2rem" : "1.5rem",
             fontWeight: "bold",
             color: "#333",
             textAlign: "center",
@@ -253,7 +258,7 @@ const Bookings = () => {
         >
           Cancellation Policy
         </DialogTitle>
-        <DialogContent sx={{ padding: "24px 16px" }}>
+        <DialogContent sx={{ padding: isMobile ? "16px 8px" : "24px 16px" }}>
           <Typography variant="body1" gutterBottom sx={{ color: "#555", lineHeight: "1.6" }}>
             Kindly note our cancellation policy:
           </Typography>
@@ -289,7 +294,7 @@ const Bookings = () => {
         <DialogActions
           sx={{
             justifyContent: "center",
-            padding: "16px",
+            padding: isMobile ? "8px" : "16px",
             borderTop: "1px solid #e0e0e0",
           }}
         >
@@ -300,7 +305,7 @@ const Bookings = () => {
               color: "#333",
               borderColor: "#333",
               borderRadius: "8px",
-              padding: "8px 24px",
+              padding: isMobile ? "4px 12px" : "8px 24px",
               "&:hover": {
                 backgroundColor: "#f5f5f5",
                 borderColor: "#333",
@@ -315,7 +320,7 @@ const Bookings = () => {
             color="error"
             sx={{
               borderRadius: "8px",
-              padding: "8px 24px",
+              padding: isMobile ? "4px 12px" : "8px 24px",
               backgroundColor: "#d32f2f",
               "&:hover": {
                 backgroundColor: "#b71c1c",

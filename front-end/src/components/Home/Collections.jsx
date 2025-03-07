@@ -1,59 +1,70 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-const collections = [
-  {
-    title: "COLDPLAY Concert Stays",
-    description: "Experience luxury stays near concert venues with exclusive amenities and premium services.",
-    image: "https://i.postimg.cc/vZ1GHhYQ/Zv-Ta-Qr-Vs-Gr-YSw-A6-V-web-6.jpg",
-    tag: ""
-  },
-  {
-    title: "Luxury Vistas",
-    description: "Discover breathtaking views from our handpicked luxury accommodations around the world.",
-    image: "https://i.postimg.cc/7hcZyhx4/68053c90-0bae-486e-ba18-dc3f02102bfb-Luxury-Collection-Banner-Image.jpg",
-    tag: "Top"
-  },
-  {
-    title: "Unique Vistas Of India",
-    description: "Delve into a one-of-a-kind collection of retreats that offer stunning vistas, unparalleled luxury, and unforgettable escapes in India's hidden gems.",
-    image: "https://i.postimg.cc/vZ1GHhYQ/Zv-Ta-Qr-Vs-Gr-YSw-A6-V-web-6.jpg",
-    tag: ""
-  },
-  {
-    title: "Corporate Offsite Vistas",
-    description: "Perfect locations for team building and corporate retreats with modern amenities.",
-    image: "https://i.postimg.cc/7hcZyhx4/68053c90-0bae-486e-ba18-dc3f02102bfb-Luxury-Collection-Banner-Image.jpg",
-    tag: "Top"
-  },
-  {
-    title: "Best Rated",
-    description: "Top-rated properties with exceptional reviews and outstanding guest experiences.",
-    image: "https://i.postimg.cc/vZ1GHhYQ/Zv-Ta-Qr-Vs-Gr-YSw-A6-V-web-6.jpg",
-    tag: ""
-  }
-];
+import { useNavigate } from 'react-router-dom'; // For navigation to another page
 
 const CollectionSlider = () => {
   const scrollContainerRef = useRef(null);
+  const [galleryData, setGalleryData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Hook for navigation
+
+  // Fetch data from the API
+  useEffect(() => {
+    const fetchGalleryData = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/api/gallery/');
+        if (!response.ok) {
+          throw new Error('Failed to fetch gallery data');
+        }
+        const data = await response.json();
+        setGalleryData(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGalleryData();
+  }, []);
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
       const scrollAmount = 280;
       const container = scrollContainerRef.current;
       const newScrollPosition = container.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount);
-      
+
       container.scrollTo({
         left: newScrollPosition,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
 
+  const handleShowAll = () => {
+    // Navigate to another page to show all images
+    navigate('/gallery', { state: { galleryData } });
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  // Slice the galleryData to show only the first 4 or 5 items
+  const displayedCards = galleryData.slice(0, 4); // Change 4 to 5 if you want 5 cards
+
+  // Use the first image from galleryData for the "Show All" card
+  const showAllImage = galleryData.length > 0 ? galleryData[0].image : '';
+
   return (
     <div className="slider-container">
       <div className="header">
-        <h2>CHOOSE A COLLECTION</h2>
+        <h2>GALLERY</h2>
         <div className="navigation-buttons">
           <button onClick={() => scroll('left')} className="nav-button">
             <ChevronLeft />
@@ -63,27 +74,38 @@ const CollectionSlider = () => {
           </button>
         </div>
       </div>
-      
+
       <div ref={scrollContainerRef} className="cards-container">
-        {collections.map((collection, index) => (
+        {displayedCards.map((item, index) => (
           <div key={index} className="card">
             <div className="card-inner">
               <img
-                src={collection.image}
-                alt={collection.title}
+                src={item.image}
+                alt={item.title || 'Gallery Image'}
                 className="card-image"
               />
               <div className="card-overlay"></div>
               <div className="card-content">
-                {collection.tag && (
-                  <span className="tag">{collection.tag}</span>
-                )}
-                <h3 className="title">{collection.title}</h3>
-                <p className="description">{collection.description}</p>
+                {item.tag && <span className="tag">{item.tag}</span>}
               </div>
             </div>
           </div>
         ))}
+        {/* "Show All" card */}
+        <div className="card" onClick={handleShowAll}>
+          <div className="card-inner show-all">
+            <img
+              src={showAllImage} // Use an image from galleryData
+              alt="Show All"
+              className="card-image"
+            />
+            <div className="card-overlay"></div>
+            <div className="card-content">
+              <h3 className="title">Show All</h3>
+              <p className="description">View all images in the gallery</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <style jsx>{`
@@ -232,6 +254,28 @@ const CollectionSlider = () => {
 
         .card-inner:hover .description {
           opacity: 1;
+        }
+
+        /* "Show All" card styles */
+        .show-all {
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .show-all .card-content {
+          text-align: center;
+        }
+
+        .show-all .title {
+          font-size: 24px;
+          margin-bottom: 8px;
+        }
+
+        .show-all .description {
+          opacity: 1;
+          font-size: 16px;
         }
       `}</style>
     </div>

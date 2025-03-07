@@ -95,10 +95,21 @@ const Footer = () => {
   ];
 
   return (
-    <Box sx={{ backgroundColor: "#1a1a1a", color: "white", py: 6, px: { xs: 4, md: 8 } }}>
-      <Grid container spacing={6} sx={{ display: "flex", justifyContent: "space-between", textAlign: "center" }}>
+    <Box sx={{ backgroundColor: "#1a1a1a", color: "white", py: 6, px: { xs: 2, sm: 4, md: 8 } }}>
+      <Grid
+        container
+        spacing={{ xs: 4, sm: 6, md: 6 }} // Adjust spacing for different screen sizes
+        sx={{ display: "flex", justifyContent: "space-between", textAlign: "center" }}
+      >
         {footerData.map((section, index) => (
-          <Grid item xs={12} sm={6} md={3} sx={{ textAlign: { xs: "center", sm: "left" } }} key={index}>
+          <Grid
+            item
+            xs={12} // Full width on mobile
+            sm={6} // 2 columns on tablet
+            md={3} // 4 columns on desktop
+            sx={{ textAlign: { xs: "center", sm: "left" } }} // Center align on mobile, left align on larger screens
+            key={index}
+          >
             <FooterSection section={section} />
           </Grid>
         ))}

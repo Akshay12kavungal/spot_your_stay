@@ -5,4 +5,4 @@ from .models import CollaborationRequest
 class CollaborationRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = CollaborationRequest
-        fields = ['name', 'email', 'phone', 'message']  # Include the phone field
+        fields = '__all__'
