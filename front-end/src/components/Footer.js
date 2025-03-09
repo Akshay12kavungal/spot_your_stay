@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Box, Typography, Link, Grid, Divider, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, Link, Grid, Divider, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { styled } from "@mui/system";
-import axios from "axios";
 import ContactForm from "../components/Home/ContactForm";
 
 // Styled luxury button with golden accents
@@ -18,62 +17,15 @@ const LuxuryButton = styled(Button)({
 });
 
 const Footer = () => {
-  const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [openContactModal, setOpenContactModal] = useState(false);
   const [openPolicyModal, setOpenPolicyModal] = useState(false); // State for policy modal
 
-  useEffect(() => {
-    const fetchProperties = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/api/properties/", {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        });
 
-        if (response.status === 200) {
-          setProperties(response.data);
-        } else {
-          setError("Unexpected response");
-        }
-      } catch (error) {
-        setError("Failed to fetch properties");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProperties();
-  }, []);
-
-  const capitalizeWords = (str) => {
-    return str
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-  };
 
   const footerData = [
-    {
-      title: "Exclusive Stays",
-      links: loading
-        ? [{ text: "Loading...", action: null }]
-        : error
-        ? [{ text: "Failed to load", action: null }]
-        : properties.map((property) => ({
-            text: capitalizeWords(property.name),
-            action: () => {},
-          })),
-    },
-    {
-      title: "Top Collections",
-      links: [
-        { text: "Luxury Villas", action: () => {} },
-        { text: "Pet-Friendly Villas", action: () => {} },
-        { text: "Trending This Season", action: () => {} },
-      ],
-    },
+    
+   
+    
     {
       title: "Support",
       links: [

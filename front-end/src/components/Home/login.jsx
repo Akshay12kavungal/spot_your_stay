@@ -24,6 +24,7 @@ const LuxuryButton = styled("button")({
 const LoginRegisterModal = ({ open, onClose }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState(""); // Correct state variable
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -31,38 +32,6 @@ const LoginRegisterModal = ({ open, onClose }) => {
 
   const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width:600px)"); // Detect mobile screens
-  const isTablet = useMediaQuery("(max-width:960px)"); // Detect tablet screens
-
-  // Utility function to check if the token has expired
-  const isTokenExpired = () => {
-    const expirationTime = localStorage.getItem("token_expiration");
-    if (!expirationTime) return true; // No expiration time stored, assume expired
-
-    const currentTime = new Date().getTime();
-    return currentTime > parseInt(expirationTime, 10);
-  };
-
-  // Utility function to refresh the token
-  const refreshToken = async () => {
-    try {
-      const response = await axios.post("http://localhost:8000/api/token/refresh/", {
-        refresh: localStorage.getItem("refresh_token"),
-      });
-
-      // Update the access token and its expiration time
-      localStorage.setItem("access_token", response.data.access);
-      const expiresIn = 3600; // Example: 1 hour in seconds
-      const expirationTime = new Date().getTime() + expiresIn * 1000;
-      localStorage.setItem("token_expiration", expirationTime);
-    } catch (error) {
-      console.error("Failed to refresh token:", error);
-      // Handle token refresh failure (e.g., log out the user)
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("token_expiration");
-      navigate("/login");
-    }
-  };
 
   // Handle registration
   const handleSubmitRegister = async (e) => {
@@ -79,6 +48,7 @@ const LoginRegisterModal = ({ open, onClose }) => {
         username,
         email,
         password,
+        phone_number: phone, // Include phone_number in the request payload
       });
       alert("Registration successful! You can now log in.");
       setIsLogin(true);
@@ -118,29 +88,30 @@ const LoginRegisterModal = ({ open, onClose }) => {
     }
   };
 
-  // Example of making an authenticated request
-  const makeAuthenticatedRequest = async () => {
-    if (isTokenExpired()) {
-      await refreshToken();
-    }
-
-    // Proceed with the authenticated request
-    try {
-      const response = await axios.get("http://localhost:8000/api/protected-endpoint/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      });
-      console.log(response.data);
-    } catch (error) {
-      console.error("Request failed:", error);
-    }
-  };
-
   return (
     <Modal open={open} onClose={onClose} aria-labelledby="login-register-modal" aria-describedby="login-register-modal-description">
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", padding: isMobile ? 2 : 4 }}>
-        <Card sx={{ display: "flex", flexDirection: isMobile ? "column" : "row", width: "100%", maxWidth: isMobile ? "100%" : 900, height: isMobile ? "auto" : 500, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)", borderRadius: 2 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          padding: isMobile ? 2 : 4,
+          overflow: "auto", // Enable scrolling for the modal container
+        }}
+      >
+        <Card
+          sx={{
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            width: "100%",
+            maxWidth: isMobile ? "90%" : 800, // Increased maxWidth for desktop
+            maxHeight: "90vh", // Limit modal height to 90% of the viewport height
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            borderRadius: 2,
+            overflow: "hidden", // Ensure content doesn't overflow
+          }}
+        >
           {/* Image Section */}
           {!isMobile && (
             <Box
@@ -149,7 +120,7 @@ const LoginRegisterModal = ({ open, onClose }) => {
                 backgroundImage: `url('http://localhost:8000/media/property_images/login.jpeg')`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                borderRadius: isMobile ? "8px 8px 0 0" : "8px 0 0 8px",
+                minHeight: isMobile ? 200 : 400, // Ensure image section has a minimum height
               }}
             />
           )}
@@ -162,7 +133,9 @@ const LoginRegisterModal = ({ open, onClose }) => {
               flexDirection: "column",
               justifyContent: "center",
               padding: isMobile ? 2 : 4,
+              paddingBottom: isMobile ? 4 : 6, // Added extra padding at the bottom
               position: "relative",
+              overflow: "auto", // Enable scrolling for the form section
             }}
           >
             <IconButton sx={{ position: "absolute", top: 8, right: 8 }} onClick={onClose}>
@@ -184,6 +157,18 @@ const LoginRegisterModal = ({ open, onClose }) => {
                   <TextField fullWidth label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required variant="outlined" placeholder="Enter your email address" />
                 </Box>
               )}
+              <Box marginBottom={2}>
+                <TextField
+                  fullWidth
+                  label="Phone Number"
+                  type="number"
+                  value={phone} // Use `phone` here
+                  onChange={(e) => setPhone(e.target.value)} // Use `setPhone` here
+                  required
+                  variant="outlined"
+                  placeholder="Enter your phone number"
+                />
+              </Box>
               <Box marginBottom={2}>
                 <TextField fullWidth label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required variant="outlined" placeholder="Enter your password" />
               </Box>

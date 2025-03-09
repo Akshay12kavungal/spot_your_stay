@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from users.views import request_otp, verify_otp
+
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -26,8 +28,10 @@ urlpatterns = [
 
     path("api/current_profile/", CurrentUserProfile.as_view(), name="current-user-profile"),
     path('api/blockeddates/', BlockedDateViewSet.as_view(), name='blockeddates-list'),
-    
 
+
+    path('api/request-otp/', request_otp, name='request_otp'),
+    path('api/verify-otp/', verify_otp, name='verify_otp'),
 
 
     

@@ -4,3 +4,10 @@ body {
 }
 
 
+.MuiInputBase-input{
+  padding: 5px !important;
+}
+
+.MuiFormLabel-root{
+ top: -10px !important;
+}
