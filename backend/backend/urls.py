@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('api/collaborations/', include('collaborations.urls')),
     path('api/about/', include('about.urls')),
+    path('api/notification/', include('notification.urls')),
 
 
     path("api/current_profile/", CurrentUserProfile.as_view(), name="current-user-profile"),

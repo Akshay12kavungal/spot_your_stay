@@ -24,22 +24,44 @@ const LuxuryButton = styled("button")({
 const LoginRegisterModal = ({ open, onClose }) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState(""); // Correct state variable
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLogin, setIsLogin] = useState(true);
 
   const navigate = useNavigate();
-  const isMobile = useMediaQuery("(max-width:600px)"); // Detect mobile screens
+  const isMobile = useMediaQuery("(max-width:600px)");
 
-  // Handle registration
+  // Helper function to calculate age
+  const calculateAge = (dateOfBirth) => {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age;
+  };
+
   const handleSubmitRegister = async (e) => {
     e.preventDefault();
     setErrorMessage("");
 
+    // Validate password match
     if (password !== confirmPassword) {
       setErrorMessage("Passwords do not match!");
+      return;
+    }
+
+    // Validate age (must be 18 or older)
+    const age = calculateAge(dateOfBirth);
+    if (age < 18) {
+      setErrorMessage("You must be at least 18 years old to register.");
       return;
     }
 
@@ -48,7 +70,8 @@ const LoginRegisterModal = ({ open, onClose }) => {
         username,
         email,
         password,
-        phone_number: phone, // Include phone_number in the request payload
+        phone_number: phone,
+        date_of_birth: dateOfBirth,
       });
       alert("Registration successful! You can now log in.");
       setIsLogin(true);
@@ -57,7 +80,6 @@ const LoginRegisterModal = ({ open, onClose }) => {
     }
   };
 
-  // Handle login
   const handleSubmitLogin = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -68,20 +90,18 @@ const LoginRegisterModal = ({ open, onClose }) => {
         password,
       });
 
-      // Store the tokens, username, and expiration time in localStorage
       localStorage.setItem("access_token", response.data.access);
       localStorage.setItem("refresh_token", response.data.refresh);
       localStorage.setItem("username", username);
 
-      // Calculate and store the token expiration time
-      const expiresIn = 3600; // Example: 1 hour in seconds
+      const expiresIn = 3600;
       const expirationTime = new Date().getTime() + expiresIn * 1000;
       localStorage.setItem("token_expiration", expirationTime);
 
       alert("Login successful!");
       setTimeout(() => {
-        navigate("/"); 
-        window.location.reload(); 
+        // navigate("/");
+        window.location.reload();
       }, 100);
     } catch (error) {
       setErrorMessage("Invalid username or password.");
@@ -97,7 +117,7 @@ const LoginRegisterModal = ({ open, onClose }) => {
           alignItems: "center",
           height: "100vh",
           padding: isMobile ? 2 : 4,
-          overflow: "auto", // Enable scrolling for the modal container
+          overflow: "auto",
         }}
       >
         <Card
@@ -105,14 +125,13 @@ const LoginRegisterModal = ({ open, onClose }) => {
             display: "flex",
             flexDirection: isMobile ? "column" : "row",
             width: "100%",
-            maxWidth: isMobile ? "90%" : 800, // Increased maxWidth for desktop
-            maxHeight: "90vh", // Limit modal height to 90% of the viewport height
+            maxWidth: isMobile ? "90%" : 800,
+            maxHeight: "90vh",
             boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
             borderRadius: 2,
-            overflow: "hidden", // Ensure content doesn't overflow
+            overflow: "hidden",
           }}
         >
-          {/* Image Section */}
           {!isMobile && (
             <Box
               sx={{
@@ -120,12 +139,11 @@ const LoginRegisterModal = ({ open, onClose }) => {
                 backgroundImage: `url('http://localhost:8000/media/property_images/login.jpeg')`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                minHeight: isMobile ? 200 : 400, // Ensure image section has a minimum height
+                minHeight: isMobile ? 200 : 400,
               }}
             />
           )}
 
-          {/* Form Section */}
           <CardContent
             sx={{
               flex: 1,
@@ -133,9 +151,9 @@ const LoginRegisterModal = ({ open, onClose }) => {
               flexDirection: "column",
               justifyContent: "center",
               padding: isMobile ? 2 : 4,
-              paddingBottom: isMobile ? 4 : 6, // Added extra padding at the bottom
+              paddingBottom: isMobile ? 4 : 6,
               position: "relative",
-              overflow: "auto", // Enable scrolling for the form section
+              overflow: "auto",
             }}
           >
             <IconButton sx={{ position: "absolute", top: 8, right: 8 }} onClick={onClose}>
@@ -162,13 +180,32 @@ const LoginRegisterModal = ({ open, onClose }) => {
                   fullWidth
                   label="Phone Number"
                   type="number"
-                  value={phone} // Use `phone` here
-                  onChange={(e) => setPhone(e.target.value)} // Use `setPhone` here
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   required
                   variant="outlined"
                   placeholder="Enter your phone number"
                 />
               </Box>
+              {!isLogin && (
+                <Box marginBottom={2}>
+                  <TextField
+                    fullWidth
+                    label="Date of Birth"
+                    type="date"
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    required
+                    variant="outlined"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    inputProps={{
+                      max: new Date().toISOString().split("T")[0], // Restrict future dates
+                    }}
+                  />
+                </Box>
+              )}
               <Box marginBottom={2}>
                 <TextField fullWidth label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required variant="outlined" placeholder="Enter your password" />
               </Box>

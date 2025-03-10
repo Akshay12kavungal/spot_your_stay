@@ -7,6 +7,7 @@ from datetime import timedelta
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     phone_number = models.CharField(max_length=15, unique=True, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     otp = models.CharField(max_length=6, blank=True, null=True)

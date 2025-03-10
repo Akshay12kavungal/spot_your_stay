@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'carousel',
     'about',
     'collaborations',
+    'notification'
 ]
 
 MIDDLEWARE = [

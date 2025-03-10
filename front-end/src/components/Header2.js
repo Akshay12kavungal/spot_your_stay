@@ -6,7 +6,6 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import Profile from '../pages/Profile'; // Profile page component
 import ListProperty from './Home/ListProperty'; // Import the ListProperty component
 import LoginRegisterModal from './Home/login';
 import ProfileModal from './Home/Profile';

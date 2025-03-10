@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/system";
 import { useNavigate, useParams } from "react-router-dom";
-import Login from "../../pages/login";
+import LoginRegisterModal from "./login";
 // Styled components (unchanged)
 const SearchContainer = styled(Box)({
   display: "flex",
@@ -86,10 +86,13 @@ const SearchBar = () => {
   const [error, setError] = useState("");
   const [dateError, setDateError] = useState("");
   const [modalOpen, setModalOpen] = useState(false); // State for modal visibility
-  const [modalContent, setModalContent] = useState(""); // State for modal content
+  const [modalContent, 
+    
+  ] = useState(""); // State for modal content
   const [showLoginButton, setShowLoginButton] = useState(false); // State to show/hide login button
   const [blockedDates, setBlockedDates] = useState([]); // State to store blocked dates
-  const [showLoginRegister, setShowLoginRegister] = useState(false); // State to show/hide LoginRegister component
+  // const [showLoginRegister, setShowLoginRegister] = useState(false); // State to show/hide LoginRegister component
+  const [showlogin, setShowLogin] = useState(false);
 
   // Get today's date in YYYY-MM-DD format
   const getCurrentDate = () => {
@@ -98,6 +101,10 @@ const SearchBar = () => {
     const month = String(today.getMonth() + 1).padStart(2, "0");
     const day = String(today.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
+  };
+
+  const handleLoginClick = () => {
+    setShowLogin(!showlogin); // Toggle the login modal visibility
   };
 
   // Get the next day's date in YYYY-MM-DD format
@@ -326,10 +333,10 @@ const SearchBar = () => {
   };
 
   // Handle login modal open
-  const handleLoginRedirect = () => {
-    setShowLoginRegister(true); // Show LoginRegister component
-    setModalOpen(false); // Close the error modal
-  };
+  // const handleLoginRedirect = () => {
+  //   setShowLoginRegister(true); // Show LoginRegister component
+  //   setModalOpen(false); // Close the error modal
+  // };
 
   // Show loading spinner while fetching data
   if (loading) {
@@ -408,7 +415,7 @@ const SearchBar = () => {
           {showLoginButton && (
             <LuxuryButton
               variant="contained"
-              onClick={handleLoginRedirect} // Open login modal
+              onClick={handleLoginClick} // Open login modal
               sx={{ mt: 3, mr: 2 }}
             >
               Login
@@ -425,14 +432,14 @@ const SearchBar = () => {
       </Modal>
 
       {/* LoginRegister Modal */}
-      <Modal
+      {/* <Modal
         open={showLoginRegister}
         onClose={() => setShowLoginRegister(false)}
-      >
+      > */}
         <Box>
-          <Login />
+          <LoginRegisterModal open={showlogin} onClose={() => setShowLogin(false)} />
         </Box>
-      </Modal>
+      {/* </Modal> */}
 
       {error && <Typography color="error">{error}</Typography>}
     </SearchContainer>

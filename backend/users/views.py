@@ -13,6 +13,8 @@ from rest_framework.authtoken.models import Token
 from .utils import send_otp_via_whatsapp
 from .serializers import OTPRequestSerializer, OTPVerifySerializer
 
+from notification.models import Notification
+
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """Allows fetching user details by username or getting the current authenticated user."""
     
@@ -53,8 +55,11 @@ class RegisterViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
+        # Create a notification for signup
+        Notification.objects.create(user=user, message="Welcome! Your account has been created successfully.")
+
         return Response({"message": "User registered successfully!", "user_id": user.id})
-    
 
 class CurrentUserProfile(APIView):
     def get(self, request):

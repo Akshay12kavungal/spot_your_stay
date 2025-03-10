@@ -17,19 +17,21 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class UserSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
     phone_number = serializers.CharField()
+    date_of_birth = serializers.DateField(required=False)
 
     class Meta:
         model = User
-        fields = ['username', 'email','phone_number', 'password']
+        fields = ['username', 'email','phone_number','date_of_birth', 'password']
 
     def create(self, validated_data):
         phone_number = validated_data.pop('phone_number')
+        date_of_birth = validated_data.pop('date_of_birth')
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )
-        UserProfile.objects.create(user=user,phone_number=phone_number)  # Create a profile for the user
+        UserProfile.objects.create(user=user,phone_number=phone_number,date_of_birth=date_of_birth)  # Create a profile for the user
         return user
 
 

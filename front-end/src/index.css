@@ -11,3 +11,8 @@ body {
 .MuiFormLabel-root{
  top: -10px !important;
 }
+
+/* .msg_title,
+.msg_text {
+  color: black !important;
+} */
