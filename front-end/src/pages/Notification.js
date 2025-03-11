@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Typography, CircularProgress, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Typography, CircularProgress, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 const LuxuryButton = styled(Button)({
@@ -16,9 +15,9 @@ const LuxuryButton = styled(Button)({
 const NotificationComponent = ({ onClose }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [openModal, setOpenModal] = useState(false);
-  const navigate = useNavigate();
+  // Remove unused variables
+  // const [error, setError] = useState(null);
+  // const [openModal, setOpenModal] = useState(false);
 
   const refreshToken = useCallback(async () => {
     try {
@@ -37,14 +36,14 @@ const NotificationComponent = ({ onClose }) => {
       console.error('Token refresh failed:', error);
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
-      setOpenModal(true);
+      // setOpenModal(true); // Uncomment if you plan to use this later
     }
-  }, []);
+  }, []); // Empty dependency array since no dependencies are used
 
   const fetchNotifications = useCallback(async () => {
     const accessToken = localStorage.getItem('access_token');
     if (!accessToken) {
-      setOpenModal(true);
+      // setOpenModal(true); // Uncomment if you plan to use this later
       return;
     }
 
@@ -64,25 +63,17 @@ const NotificationComponent = ({ onClose }) => {
           setNotifications(retryResponse.data);
         }
       } else {
-        setError('Failed to fetch notifications. Please try again.');
-        setOpenModal(true);
+        // setError('Failed to fetch notifications. Please try again.'); // Uncomment if you plan to use this later
+        // setOpenModal(true); // Uncomment if you plan to use this later
       }
     } finally {
       setLoading(false);
     }
-  }, [refreshToken]);
+  }, [refreshToken]); // Add refreshToken as a dependency
 
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
-
-  const handleClose = () => {
-    setOpenModal(false);
-  };
-
-  const handleLogin = () => {
-    navigate('/login');
-  };
 
   if (loading) {
     return (
@@ -112,7 +103,6 @@ const NotificationComponent = ({ onClose }) => {
       <LuxuryButton onClick={onClose} fullWidth style={{ marginTop: '16px' }}>
         Close
       </LuxuryButton>
-
     </div>
   );
 };

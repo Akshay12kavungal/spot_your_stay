@@ -1,4 +1,4 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState } from 'react'; // Remove ReactNode if unused
 import axios from 'axios';
 
 // Set the default context value (without TypeScript types)
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await axios.post("/api/token/", { username, password });
             setAuthTokens(response.data);
-            localStorage.setItem("authTokens", JSON.stringify(response.data)        );
+            localStorage.setItem("authTokens", JSON.stringify(response.data));
         } catch (error) {
             console.error("Login failed", error);
         }

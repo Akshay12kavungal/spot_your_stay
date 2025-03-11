@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 import { Box, Card, CardContent, TextField, Typography, Alert, Link, Modal, IconButton, useMediaQuery } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -31,7 +30,6 @@ const LoginRegisterModal = ({ open, onClose }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLogin, setIsLogin] = useState(true);
 
-  const navigate = useNavigate();
   const isMobile = useMediaQuery("(max-width:600px)");
 
   // Helper function to calculate age

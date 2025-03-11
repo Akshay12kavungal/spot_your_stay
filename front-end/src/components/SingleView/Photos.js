@@ -6,14 +6,11 @@ import {
   Typography,
   Button,
   CardMedia,
-  IconButton,
   CircularProgress,
   Dialog,
   DialogTitle,
   DialogContent,
 } from "@mui/material";
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import ShareIcon from "@mui/icons-material/Share";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 const VillaSection = ({ propertyId }) => {

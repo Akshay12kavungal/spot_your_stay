@@ -128,7 +128,7 @@ const VillaDetailsSection = ({ propertyId }) => {
         </Box>
         <Box display="flex" alignItems="center" px={2} py={1} bgcolor="#F3F8FF" borderRadius={2}>
           <RoomServiceIcon fontSize="small" style={{ marginRight: '8px' }} />
-          <Typography variant="body2" fontWeight="bold">{property.meals} Meals Available</Typography>
+          <Typography variant="body2" fontWeight="bold">Complimentory Breakfast</Typography>
         </Box>
       </Box>
 

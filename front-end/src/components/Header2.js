@@ -45,7 +45,6 @@ const Header = () => {
   const [isTransparent, setIsTransparent] = useState(true);
   const [showlogin, setShowLogin] = useState(false);
   const [showProfile, setShowProfile] = useState(false); // State to toggle profile page
-  const [profileEditMode, setProfileEditMode] = useState(false); // State to toggle edit mode in profile
   const isMobile = useMediaQuery('(max-width:600px)');
   const navigate = useNavigate(); // Initialize navigate
   const [showListProperty, setShowListProperty] = useState(false);
@@ -74,9 +73,6 @@ const Header = () => {
     handleProfileMenuClose(); // Close the profile menu after redirection
   };
 
-  const handleProfileEditToggle = () => {
-    setProfileEditMode(!profileEditMode); // Toggle between view and edit mode in the profile
-  };
 
   const handleLoginClick = () => {
     setShowLogin(!showlogin); // Toggle the login modal visibility

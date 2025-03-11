@@ -44,15 +44,7 @@ const TrendingSection = () => {
     setLocation(newValue);
   };
 
-  const handleScroll = (direction) => {
-    if (scrollContainerRef.current) {
-      const scrollAmount = 300;
-      const newScrollPosition =
-        scrollContainerRef.current.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount);
-
-      scrollContainerRef.current.scrollTo({ left: newScrollPosition, behavior: 'smooth' });
-    }
-  };
+ 
 
   const handleArrowButtonClick = (propertyId) => {
     navigate(`/single/${propertyId}`);

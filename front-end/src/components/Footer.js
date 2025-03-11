@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Typography, Link, Grid, Divider, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { Box, Typography, Link, Divider, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { styled } from "@mui/system";
 import ContactForm from "../components/Home/ContactForm";
 
@@ -20,52 +20,79 @@ const Footer = () => {
   const [openContactModal, setOpenContactModal] = useState(false);
   const [openPolicyModal, setOpenPolicyModal] = useState(false); // State for policy modal
 
+  const footerLinks = [
+    { text: "Contact Us", action: () => setOpenContactModal(true) },
+    { text: "FAQs", action: () => {} },
+    { text: "Cancellation & Refund Policy", action: () => setOpenPolicyModal(true) },
+    { text: "Terms & Conditions", action: () => {} },
+    { text: "Privacy Policy", action: () => {} },
+  ];
 
-
-  const footerData = [
-    
-   
-    
-    {
-      title: "Support",
-      links: [
-        { text: "Contact Us", action: () => setOpenContactModal(true) },
-        { text: "FAQs", action: () => {} },
-        { text: "Cancellation & Refund Policy", action: () => setOpenPolicyModal(true) }, // Open policy modal
-        { text: "Terms & Conditions", action: () => {} },
-        { text: "Privacy Policy", action: () => {} },
-      ],
-    },
-    {
-      title: "Follow Us",
-      links: [
-        { text: "Facebook", action: () => window.open("https://facebook.com", "_blank") },
-        { text: "Twitter", action: () => window.open("https://twitter.com", "_blank") },
-        { text: "Instagram", action: () => window.open("https://instagram.com", "_blank") },
-      ],
-    },
+  const socialMediaLinks = [
+    { text: "Facebook", action: () => window.open("https://facebook.com", "_blank") },
+    { text: "Twitter", action: () => window.open("https://twitter.com", "_blank") },
+    { text: "Instagram", action: () => window.open("https://instagram.com", "_blank") },
   ];
 
   return (
     <Box sx={{ backgroundColor: "#1a1a1a", color: "white", py: 6, px: { xs: 2, sm: 4, md: 8 } }}>
-      <Grid
-        container
-        spacing={{ xs: 4, sm: 6, md: 6 }} // Adjust spacing for different screen sizes
-        sx={{ display: "flex", justifyContent: "space-between", textAlign: "center" }}
+      {/* Footer Links in the First Line */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row", // Horizontal layout
+          flexWrap: "wrap", // Wrap links to the next line if they don't fit
+          justifyContent: "center", // Center links horizontally
+          gap: 4, // Spacing between links
+          mb: 2, // Margin bottom
+        }}
       >
-        {footerData.map((section, index) => (
-          <Grid
-            item
-            xs={12} // Full width on mobile
-            sm={6} // 2 columns on tablet
-            md={3} // 4 columns on desktop
-            sx={{ textAlign: { xs: "center", sm: "left" } }} // Center align on mobile, left align on larger screens
-            key={index}
-          >
-            <FooterSection section={section} />
-          </Grid>
+        {footerLinks.map((link, index) => (
+          <Typography key={index} variant="body2" sx={{ opacity: 0.8 }}>
+            {link.action ? (
+              <LuxuryButton onClick={link.action}>{link.text}</LuxuryButton>
+            ) : (
+              <Link
+                href={link.url}
+                underline="none"
+                color="inherit"
+                sx={{ transition: "0.3s", "&:hover": { color: "#d4af37" } }}
+              >
+                {link.text}
+              </Link>
+            )}
+          </Typography>
         ))}
-      </Grid>
+      </Box>
+
+      {/* Social Media Links in the Second Line */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row", // Horizontal layout
+          flexWrap: "wrap", // Wrap links to the next line if they don't fit
+          justifyContent: "center", // Center links horizontally
+          gap: 4, // Spacing between links
+          mb: 4, // Margin bottom
+        }}
+      >
+        {socialMediaLinks.map((link, index) => (
+          <Typography key={index} variant="body2" sx={{ opacity: 0.8 }}>
+            {link.action ? (
+              <LuxuryButton onClick={link.action}>{link.text}</LuxuryButton>
+            ) : (
+              <Link
+                href={link.url}
+                underline="none"
+                color="inherit"
+                sx={{ transition: "0.3s", "&:hover": { color: "#d4af37" } }}
+              >
+                {link.text}
+              </Link>
+            )}
+          </Typography>
+        ))}
+      </Box>
 
       <Divider sx={{ backgroundColor: "#444", my: 4 }} />
 
@@ -166,30 +193,5 @@ const Footer = () => {
     </Box>
   );
 };
-
-const FooterSection = ({ section }) => (
-  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-    <Typography variant="h6" sx={{ fontWeight: "bold", textTransform: "uppercase", mb: 2, color: "white" }}>
-      {section.title}
-    </Typography>
-
-    {section.links.map((link, i) => (
-      <Typography key={i} variant="body2" sx={{ opacity: 0.8 }}>
-        {link.action ? (
-          <LuxuryButton onClick={link.action}>{link.text}</LuxuryButton>
-        ) : (
-          <Link
-            href={link.url}
-            underline="none"
-            color="inherit"
-            sx={{ transition: "0.3s", "&:hover": { color: "#d4af37" } }}
-          >
-            {link.text}
-          </Link>
-        )}
-      </Typography>
-    ))}
-  </Box>
-);
 
 export default Footer;

@@ -12,7 +12,6 @@ import {
   Modal,
   IconButton,
   useMediaQuery,
-  Grid,
   Stack,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -26,7 +25,6 @@ const ProfileModal = ({ open, onClose }) => {
   const [showProfileEdit, setShowProfileEdit] = useState(false);
 
   const isMobile = useMediaQuery("(max-width:600px)"); // Detect mobile screens
-  const isTablet = useMediaQuery("(max-width:960px)"); // Detect tablet screens
 
   // Fetch user data from the API
   useEffect(() => {
@@ -84,6 +82,10 @@ const ProfileModal = ({ open, onClose }) => {
           },
         }
       );
+
+      if (response.status !== 200) {
+        throw new Error("Update failed.");
+      }
 
       alert("Profile updated successfully!");
       setShowProfileEdit(false);

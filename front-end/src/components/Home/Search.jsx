@@ -11,6 +11,7 @@ import {
 import { styled } from "@mui/system";
 import { useNavigate, useParams } from "react-router-dom";
 import LoginRegisterModal from "./login";
+
 // Styled components (unchanged)
 const SearchContainer = styled(Box)({
   display: "flex",
@@ -84,14 +85,10 @@ const SearchBar = () => {
   const [guests, setGuests] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [dateError, setDateError] = useState("");
   const [modalOpen, setModalOpen] = useState(false); // State for modal visibility
-  const [modalContent, 
-    
-  ] = useState(""); // State for modal content
+  const [modalContent, setModalContent] = useState(""); // State for modal content
   const [showLoginButton, setShowLoginButton] = useState(false); // State to show/hide login button
   const [blockedDates, setBlockedDates] = useState([]); // State to store blocked dates
-  // const [showLoginRegister, setShowLoginRegister] = useState(false); // State to show/hide LoginRegister component
   const [showlogin, setShowLogin] = useState(false);
 
   // Get today's date in YYYY-MM-DD format
@@ -198,6 +195,7 @@ const SearchBar = () => {
     }
     return false; // No overlap for this property
   };
+
   // Handle booking submission
   const handleBooking = async () => {
     try {
@@ -227,8 +225,6 @@ const SearchBar = () => {
         return;
       }
   
-      setDateError(""); // Clear any previous error
-  
       const response = await axios.post(
         "http://127.0.0.1:8000/api/bookings/",
         {
@@ -255,6 +251,7 @@ const SearchBar = () => {
       alert(`Error: ${JSON.stringify(error.response?.data) || "Could not create booking."}`);
     }
   };
+
   // Fetch existing bookings for the property
   const fetchExistingBookings = async () => {
     try {
@@ -331,12 +328,6 @@ const SearchBar = () => {
       setGuests(value);
     }
   };
-
-  // Handle login modal open
-  // const handleLoginRedirect = () => {
-  //   setShowLoginRegister(true); // Show LoginRegister component
-  //   setModalOpen(false); // Close the error modal
-  // };
 
   // Show loading spinner while fetching data
   if (loading) {
@@ -432,14 +423,9 @@ const SearchBar = () => {
       </Modal>
 
       {/* LoginRegister Modal */}
-      {/* <Modal
-        open={showLoginRegister}
-        onClose={() => setShowLoginRegister(false)}
-      > */}
-        <Box>
-          <LoginRegisterModal open={showlogin} onClose={() => setShowLogin(false)} />
-        </Box>
-      {/* </Modal> */}
+      <Box>
+        <LoginRegisterModal open={showlogin} onClose={() => setShowLogin(false)} />
+      </Box>
 
       {error && <Typography color="error">{error}</Typography>}
     </SearchContainer>

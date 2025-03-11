@@ -45,7 +45,6 @@ const Header = () => {
   const [isTransparent, setIsTransparent] = useState(true);
   const [showlogin, setShowLogin] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [profileEditMode, setProfileEditMode] = useState(false);
   const isMobile = useMediaQuery('(max-width:600px)');
   const navigate = useNavigate();
   const [showListProperty, setShowListProperty] = useState(false);
@@ -104,7 +103,7 @@ const Header = () => {
   // Handle scroll to toggle transparency
   useEffect(() => {
     const handleScroll = () => {
-      setIsTransparent(window.scrollY < 100); // Change to false after scrolling down 100px
+      setIsTransparent(window.scrollY < 100);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -112,86 +111,88 @@ const Header = () => {
   }, []);
 
   return (
-    <StyledAppBar position="fixed" transparent={isTransparent}>
-      <Toolbar>
-        {/* Logo */}
-        <Typography variant="h6" noWrap sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-          <a href="/" to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
-            <img
-              src="https://i.postimg.cc/L5ckc6Bh/Screenshot-2024-11-11-123700-removebg-preview.png"
-              alt="Logo"
-              style={{ height: 40, marginRight: 8 }}
-            />
-          </a>
-        </Typography>
+    <>
+      <StyledAppBar position="fixed" transparent={isTransparent}>
+        <Toolbar>
+          {/* Logo */}
+          <Typography variant="h6" noWrap sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
+            <a href="/" to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+              <img
+                src="https://i.postimg.cc/L5ckc6Bh/Screenshot-2024-11-11-123700-removebg-preview.png"
+                alt="Logo"
+                style={{ height: 40, marginRight: 8 }}
+              />
+            </a>
+          </Typography>
 
-        {/* Conditional display based on screen size */}
-        {isMobile ? (
-          <>
-            {/* Mobile View */}
-            <IconButton color="inherit" onClick={handleMenuOpen}>
-              <MenuIcon />
-            </IconButton>
-            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-              <MenuItem onClick={handleMenuClose}>Explore</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Bookings</MenuItem>
-              <MenuItem onClick={handleMenuClose}>
-                <PhoneIcon /> +91 9846865888
-              </MenuItem>
-              <MenuItem onClick={handleNotificationClick}>
-                <NotificationsIcon color="error" />
-                Notifications
-              </MenuItem>
-              <MenuItem onClick={handleProfileMenuOpen}>
-                <AccountCircleIcon />
-                My Account
-              </MenuItem>
-            </Menu>
-            <Menu
-              anchorEl={profileMenuAnchorEl}
-              open={Boolean(profileMenuAnchorEl)}
-              onClose={handleProfileMenuClose}
-            >
-              <MenuItem onClick={handleProfileRedirect}>My Profile</MenuItem>
-              <MenuItem onClick={handleLoginClick}>Login</MenuItem>
-            </Menu>
-          </>
-        ) : (
-          <>
-            {/* Desktop View */}
-            <TransparentButton onClick={handleMenuOpen} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
-              Explore
-            </TransparentButton>
-            <TransparentButton onClick={handleListProperty} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
-              List Your Property
-            </TransparentButton>
-            <LuxuryButton onClick={handleBookings} variant="contained" sx={{ marginRight: 1 }}>
-              Bookings
-            </LuxuryButton>
-            <TransparentButton startIcon={<PhoneIcon />} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
-              +91 9846865888
-            </TransparentButton>
-            <IconButton color="inherit" onClick={handleNotificationClick}>
-              <NotificationsIcon color="error" />
-            </IconButton>
-            <IconButton color="inherit" onClick={handleProfileMenuOpen}>
-              <AccountCircleIcon />
-            </IconButton>
-            <Menu
-              anchorEl={profileMenuAnchorEl}
-              open={Boolean(profileMenuAnchorEl)}
-              onClose={handleProfileMenuClose}
-            >
-              <MenuItem onClick={handleProfileRedirect}>My Profile</MenuItem>
-              {localStorage.getItem('access_token') ? (
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
-              ) : (
+          {/* Conditional display based on screen size */}
+          {isMobile ? (
+            <>
+              {/* Mobile View */}
+              <IconButton color="inherit" onClick={handleMenuOpen}>
+                <MenuIcon />
+              </IconButton>
+              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+                <MenuItem onClick={handleMenuClose}>Explore</MenuItem>
+                <MenuItem onClick={handleMenuClose}>Bookings</MenuItem>
+                <MenuItem onClick={handleMenuClose}>
+                  <PhoneIcon /> +91 9846865888
+                </MenuItem>
+                <MenuItem onClick={handleNotificationClick}>
+                  <NotificationsIcon color="error" />
+                  Notifications
+                </MenuItem>
+                <MenuItem onClick={handleProfileMenuOpen}>
+                  <AccountCircleIcon />
+                  My Account
+                </MenuItem>
+              </Menu>
+              <Menu
+                anchorEl={profileMenuAnchorEl}
+                open={Boolean(profileMenuAnchorEl)}
+                onClose={handleProfileMenuClose}
+              >
+                <MenuItem onClick={handleProfileRedirect}>My Profile</MenuItem>
                 <MenuItem onClick={handleLoginClick}>Login</MenuItem>
-              )}
-            </Menu>
-          </>
-        )}
-      </Toolbar>
+              </Menu>
+            </>
+          ) : (
+            <>
+              {/* Desktop View */}
+              <TransparentButton onClick={handleMenuOpen} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
+                Explore
+              </TransparentButton>
+              <TransparentButton onClick={handleListProperty} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
+                List Your Property
+              </TransparentButton>
+              <LuxuryButton onClick={handleBookings} variant="contained" sx={{ marginRight: 1 }}>
+                Bookings
+              </LuxuryButton>
+              <TransparentButton startIcon={<PhoneIcon />} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
+                +91 9846865888
+              </TransparentButton>
+              <IconButton color="inherit" onClick={handleNotificationClick}>
+                <NotificationsIcon color="error" />
+              </IconButton>
+              <IconButton color="inherit" onClick={handleProfileMenuOpen}>
+                <AccountCircleIcon />
+              </IconButton>
+              <Menu
+                anchorEl={profileMenuAnchorEl}
+                open={Boolean(profileMenuAnchorEl)}
+                onClose={handleProfileMenuClose}
+              >
+                <MenuItem onClick={handleProfileRedirect}>My Profile</MenuItem>
+                {localStorage.getItem('access_token') ? (
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                ) : (
+                  <MenuItem onClick={handleLoginClick}>Login</MenuItem>
+                )}
+              </Menu>
+            </>
+          )}
+        </Toolbar>
+      </StyledAppBar>
 
       {/* Modals */}
       <LoginRegisterModal open={showlogin} onClose={() => setShowLogin(false)} />
@@ -199,8 +200,12 @@ const Header = () => {
       <ListProperty open={showListProperty} onClose={() => setShowListProperty(false)} />
 
       {/* Notification Component */}
-      {showNotifications && <NotificationComponent onClose={() => setShowNotifications(false)} />}
-    </StyledAppBar>
+      {showNotifications && (
+        <div style={{ position: 'fixed', top: '64px', right: '16px', zIndex: 1300 }}>
+          <NotificationComponent onClose={() => setShowNotifications(false)} />
+        </div>
+      )}
+    </>
   );
 };
 

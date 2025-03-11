@@ -24,7 +24,6 @@ const CheckoutPage = () => {
   const propertyId = params.get("property");
   const checkIn = params.get("checkin");
   const checkOut = params.get("checkout");
-  const guestsFromUrl = params.get("guests") || "Not specified";
   const bookingId = params.get("bookingId"); // Retrieve booking ID from URL
 
   const [property, setProperty] = useState(null);
@@ -194,7 +193,6 @@ const CheckoutPage = () => {
   }
 
   const { rentalCharges, gst, totalPrice, advanceAmount } = calculateTotalPrice();
-  const guests = guestsFromUrl;
 
   return (
     <div>
