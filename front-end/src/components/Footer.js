@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Box, Typography, Link, Divider, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { styled } from "@mui/system";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import ContactForm from "../components/Home/ContactForm";
 
 // Styled luxury button with golden accents
@@ -19,8 +20,10 @@ const LuxuryButton = styled(Button)({
 const Footer = () => {
   const [openContactModal, setOpenContactModal] = useState(false);
   const [openPolicyModal, setOpenPolicyModal] = useState(false); // State for policy modal
+  const navigate = useNavigate(); // Hook for navigation
 
   const footerLinks = [
+    { text: "About Us", action: () => navigate("/aboutus") }, // Add About Us link
     { text: "Contact Us", action: () => setOpenContactModal(true) },
     { text: "FAQs", action: () => {} },
     { text: "Cancellation & Refund Policy", action: () => setOpenPolicyModal(true) },

@@ -7,7 +7,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
 } from "@mui/material";
 import axios from "axios";
 import { Grid } from "@mui/material";
@@ -16,16 +16,17 @@ import WifiIcon from "@mui/icons-material/Wifi";
 import NatureIcon from "@mui/icons-material/Nature";
 import LocalBarIcon from "@mui/icons-material/LocalBar";
 import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
-import PeopleIcon from '@mui/icons-material/People';
-import HotelIcon from '@mui/icons-material/Hotel';
-import BathtubIcon from '@mui/icons-material/Bathtub';
-import RoomServiceIcon from '@mui/icons-material/RoomService';
-import InfoIcon from '@mui/icons-material/Info';
+import PeopleIcon from "@mui/icons-material/People";
+import HotelIcon from "@mui/icons-material/Hotel";
+import BathtubIcon from "@mui/icons-material/Bathtub";
+import RoomServiceIcon from "@mui/icons-material/RoomService";
+import InfoIcon from "@mui/icons-material/Info";
 
 const VillaDetailsSection = ({ propertyId }) => {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [openPolicyModal, setOpenPolicyModal] = useState(false); // State for the dialog
+  const [openPolicyModal, setOpenPolicyModal] = useState(false);
+  const [showAllAmenities, setShowAllAmenities] = useState(false); // State to manage visibility of all amenities
 
   // Handler to open the dialog
   const handleOpenPolicyModal = () => {
@@ -35,6 +36,11 @@ const VillaDetailsSection = ({ propertyId }) => {
   // Handler to close the dialog
   const handleClosePolicyModal = () => {
     setOpenPolicyModal(false);
+  };
+
+  // Handler to toggle visibility of all amenities
+  const handleShowAllAmenities = () => {
+    setShowAllAmenities(!showAllAmenities);
   };
 
   useEffect(() => {
@@ -83,6 +89,28 @@ const VillaDetailsSection = ({ propertyId }) => {
     );
   }
 
+  // Define icons for amenities
+  const amenityIcons = {
+    "Swimming Pool": <PoolIcon />,
+    "WiFi": <WifiIcon />,
+    "Lawn": <NatureIcon />,
+    "Bar": <LocalBarIcon />,
+    "Alfresco Dining": <RestaurantMenuIcon />,
+    "Complimentary breakfast": <RestaurantMenuIcon />,
+    "Air conditioning": <HotelIcon />,
+    "Pet Friendly": <NatureIcon />,
+    "Infinity Pool": <PoolIcon />,
+  };
+
+  // Check if all amenities have icons
+  const allAmenitiesHaveIcons = property.amenities.every(
+    (amenity) => amenityIcons[amenity.name]
+  );
+
+  // Display only the first 5 amenities initially
+  const initialAmenities = property.amenities.slice(0, 5);
+  const remainingAmenitiesCount = property.amenities.length - initialAmenities.length;
+
   return (
     <Box sx={{ padding: 2 }}>
       {/* Title Section */}
@@ -114,21 +142,29 @@ const VillaDetailsSection = ({ propertyId }) => {
       {/* Overview Section */}
       <Box mb={2} display="flex" justifyContent="flex-start" alignItems="center" flexWrap="wrap" gap={2}>
         <Box display="flex" alignItems="center" px={2} py={1} bgcolor="#F3F8FF" borderRadius={2}>
-          <PeopleIcon fontSize="small" style={{ marginRight: '8px' }} />
-          <Typography variant="body2" fontWeight="bold">{property.guests} Guests</Typography>
+          <PeopleIcon fontSize="small" style={{ marginRight: "8px" }} />
+          <Typography variant="body2" fontWeight="bold">
+            {property.guests} Guests
+          </Typography>
         </Box>
         <Box display="flex" alignItems="center" px={2} py={1} bgcolor="#F3F8FF" borderRadius={2}>
-          <HotelIcon fontSize="small" style={{ marginRight: '8px' }} />
-          <Typography variant="body2" fontWeight="bold">{property.rooms} Rooms</Typography>
-          <InfoIcon fontSize="small" color="info" style={{ marginLeft: '4px' }} />
+          <HotelIcon fontSize="small" style={{ marginRight: "8px" }} />
+          <Typography variant="body2" fontWeight="bold">
+            {property.rooms} Rooms
+          </Typography>
+          <InfoIcon fontSize="small" color="info" style={{ marginLeft: "4px" }} />
         </Box>
         <Box display="flex" alignItems="center" px={2} py={1} bgcolor="#F3F8FF" borderRadius={2}>
-          <BathtubIcon fontSize="small" style={{ marginRight: '8px' }} />
-          <Typography variant="body2" fontWeight="bold">{property.bathrooms} Baths</Typography>
+          <BathtubIcon fontSize="small" style={{ marginRight: "8px" }} />
+          <Typography variant="body2" fontWeight="bold">
+            {property.bathrooms} Baths
+          </Typography>
         </Box>
         <Box display="flex" alignItems="center" px={2} py={1} bgcolor="#F3F8FF" borderRadius={2}>
-          <RoomServiceIcon fontSize="small" style={{ marginRight: '8px' }} />
-          <Typography variant="body2" fontWeight="bold">Complimentory Breakfast</Typography>
+          <RoomServiceIcon fontSize="small" style={{ marginRight: "8px" }} />
+          <Typography variant="body2" fontWeight="bold">
+            Complimentary Breakfast
+          </Typography>
         </Box>
       </Box>
 
@@ -192,41 +228,29 @@ const VillaDetailsSection = ({ propertyId }) => {
           Amenities:
         </Typography>
         <Grid container spacing={2} mt={1}>
-          <Grid item xs={6} md={3}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <PoolIcon />
-              <Typography variant="body2">Swimming Pool</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <NatureIcon />
-              <Typography variant="body2">Lawn</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <WifiIcon />
-              <Typography variant="body2">WiFi</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <LocalBarIcon />
-              <Typography variant="body2">Bar</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6} md={3}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <RestaurantMenuIcon />
-              <Typography variant="body2">Alfresco Dining</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6}>
-            <Typography variant="body2" color="primary" sx={{ cursor: "pointer" }}>
-              +21 Amenities
-            </Typography>
-          </Grid>
+          {/* Display initial amenities or all amenities based on state */}
+          {(showAllAmenities ? property.amenities : initialAmenities).map((amenity, index) => (
+            <Grid item xs={6} md={3} key={index}>
+              <Box display="flex" alignItems="center" gap={1}>
+                {/* Show icon only if all amenities have icons */}
+                {allAmenitiesHaveIcons ? amenityIcons[amenity.name] : null}
+                <Typography variant="body2">{amenity.name}</Typography>
+              </Box>
+            </Grid>
+          ))}
+          {/* Show "+X Amenities" or "Show Less" based on state */}
+          {property.amenities.length > 5 && (
+            <Grid item xs={6}>
+              <Typography
+                variant="body2"
+                color="primary"
+                sx={{ cursor: "pointer" }}
+                onClick={handleShowAllAmenities}
+              >
+                {showAllAmenities ? "Show Less" : `+${remainingAmenitiesCount} Amenities`}
+              </Typography>
+            </Grid>
+          )}
         </Grid>
       </Box>
 
@@ -250,11 +274,11 @@ const VillaDetailsSection = ({ propertyId }) => {
           sx={{
             textTransform: "none",
             fontWeight: "bold",
-            borderColor: "#d32f2f", // Red border
-            color: "#d32f2f", // Red text
+            borderColor: "#d32f2f",
+            color: "#d32f2f",
             "&:hover": {
-              borderColor: "#b71c1c", // Darker red on hover
-              color: "#b71c1c", // Darker red text on hover
+              borderColor: "#b71c1c",
+              color: "#b71c1c",
             },
           }}
           onClick={handleOpenPolicyModal}

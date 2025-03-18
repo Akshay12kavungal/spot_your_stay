@@ -13,6 +13,7 @@ import FAQList from './components/Home/FAQList';
 import Bookings from './components/Home/Bookings';
 import ListProperty from './components/Home/ListProperty';
 import Notification from './pages/Notification';
+import About from './components/Home/About';
 
 
 function App() {
@@ -34,6 +35,8 @@ function App() {
         <Route path="/bookings" element={<Bookings />} />
         <Route path="/listproperty" element={<ListProperty />} />
         <Route path="/notification" element={<Notification />} />
+        <Route path="/aboutus" element={<About/>} />
+        
 
       </Routes>
     </div>

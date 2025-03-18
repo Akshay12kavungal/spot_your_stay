@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import ListProperty from './Home/ListProperty'; // Import the ListProperty component
 import LoginRegisterModal from './Home/login';
 import ProfileModal from './Home/Profile';
+import NotificationComponent from '../pages/Notification'; // Correct import path
+
 
 const StyledAppBar = styled(AppBar)(({ transparent }) => ({
   backgroundColor:  '#fff',
@@ -48,7 +50,12 @@ const Header = () => {
   const isMobile = useMediaQuery('(max-width:600px)');
   const navigate = useNavigate(); // Initialize navigate
   const [showListProperty, setShowListProperty] = useState(false);
-
+  const [showNotifications, setShowNotifications] = useState(false); // State to control notification visibility
+  
+  // Handle notification icon click
+  const handleNotificationClick = () => {
+    setShowNotifications(!showNotifications); // Toggle notification visibility
+  };
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -126,9 +133,8 @@ return (
             <MenuItem onClick={handleMenuClose}>
               <PhoneIcon /> +91 9846865888
             </MenuItem>
-            <MenuItem onClick={handleMenuClose}>
-            
-              <NotificationsIcon color="error" />
+            <MenuItem onClick={handleNotificationClick}>
+            <NotificationsIcon color="error" />
               Notifications
             </MenuItem>
             <MenuItem onClick={handleProfileMenuOpen}>
@@ -160,9 +166,9 @@ return (
           <TransparentButton startIcon={<PhoneIcon />} color="inherit" scroll={!isTransparent} sx={{ marginRight: 1 }}>
             +91 9846865888
           </TransparentButton>
-          <IconButton color="inherit">
-            <NotificationsIcon color="error" />
-          </IconButton>
+          <IconButton color="inherit" onClick={handleNotificationClick}>
+              <NotificationsIcon color="error" />
+            </IconButton>
           <IconButton color="inherit" onClick={handleProfileMenuOpen}>
             <AccountCircleIcon />
           </IconButton>
@@ -192,6 +198,12 @@ return (
     )} */}
     <ProfileModal open={showProfile} onClose={() => setShowProfile(false)} />
     <ListProperty open={showListProperty} onClose={() => setShowListProperty(false)} />
+    {/* Notification Component */}
+          {showNotifications && (
+            <div style={{ position: 'fixed', top: '64px', right: '16px', zIndex: 1300 }}>
+              <NotificationComponent onClose={() => setShowNotifications(false)} />
+            </div>
+          )}
 
   </StyledAppBar>
 );
